@@ -1,0 +1,101 @@
+# make 'ls' command a little more useful/to my liking
+case "$OSTYPE" in
+    linux*)     alias ls='ls -Alhp --color=auto' ;;
+    darwin*)    alias ls='ls -AlhpG' ;;
+esac
+
+# show full history, since `history` in zsh is practically an alias to `fc -l`
+alias history='history 1'
+
+# change directory and immediately list contents
+function cdl()
+{
+	cd "$@" && ls
+}
+
+# make navigating up the directory hierarchy a little easier by just
+# specifying the number of levels to jump "up"
+# example - go up 3 directories: `up 3`
+function up()
+{
+	for (( i = 1; i <= ${1:-1}; i++ ));
+	do
+		cd ..
+	done
+}
+
+# For when you inevitably fuck up trying to exit...
+alias eixt="exit"
+
+# IP checking
+alias ipcheck='SERVER="echo.tjhop.io"; echo "Checking against < $SERVER >"; echo "IPv4: $(curl -4sL $SERVER)"; echo "IPv6: $(curl -6sL $SERVER)"'
+alias ipecho='SERVER="echo.tjhop.io"; echo "Checking against < $SERVER >"; echo "IPv4: $(curl -4sL $SERVER)"; echo "IPv6: $(curl -6sL $SERVER)"'
+
+# give printout of saved aliases
+alias show-aliases='alias && grep "^function" "$HOME/.aliases"'
+
+if [[ "$OSTYPE" == darwin* ]]; then
+    # replace macOS's shitty old BSD version of commands with GNU's
+    alias sed='/usr/local/bin/gsed'
+    alias tar='/usr/local/bin/gtar'
+    alias date='/usr/local/bin/gdate'
+    alias find='/usr/local/bin/gfind'
+    alias grep='/usr/local/bin/ggrep'
+    alias md5sum='/usr/local/bin/gmd5sum'
+    alias sha1sum='/usr/local/bin/gsha1sum'
+    alias sha256sum='/usr/local/bin/gsha256sum'
+fi
+
+# -----------------------------------------
+
+# for when you just need to make one-off SSH connections and don't want to remember the fingerprint
+alias forgetful-ssh='ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+alias forgetful-scp='scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+
+# git aliases
+# ----------
+alias ga='git add'
+alias gs='git status'
+alias gd='git diff'
+alias gds='git diff --staged'
+alias gb='git branch'
+alias gc='git checkout'
+alias gcb='git checkout -b'
+alias gr='git pull --rebase upstream master'
+alias grm='git rm'
+function gcmp() {
+    # gcmp == git checkout master, merge, && push to origin's master
+    local WORKING_BRANCH=$(git branch | grep '^*' | cut -d' ' -f2)
+    git checkout master
+    git merge "$WORKING_BRANCH" --no-edit
+    git push origin master
+}
+alias gcpp='git checkout master ; git pull --rebase upstream master ; git push origin master'
+function gcppd() {
+    # same as `gcpp`, but also deletes the working branch after
+    local WORKING_BRANCH=$(git branch | grep '^*' | cut -d' ' -f2)
+    git checkout master
+    git pull --rebase upstream master
+    git push origin master
+    git branch -D "$WORKING_BRANCH"
+}
+alias gscpp='git stash ; git checkout master ; git pull --rebase upstream master ; git push origin master'
+function gpbpr() {
+    # gpb == git push branch to bits for PR
+    local WORKING_BRANCH=$(git branch | grep '^*' | cut -d' ' -f2)
+    git push origin "$WORKING_BRANCH" "$@"
+}
+alias gcom='git commit'
+alias gcoma='git commit --amend'
+alias gcomane='git commit --amend --no-edit'
+alias update-git-repos="for d in *; do pushd \${d}; git pull origin master; popd; done"
+alias dotfile-git='git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+
+#colored man pages
+export LESS_TERMCAP_mb=$'\E[01;31m'
+export LESS_TERMCAP_md=$'\E[01;31m'
+export LESS_TERMCAP_me=$'\E[0m'
+export LESS_TERMCAP_se=$'\E[0m'
+export LESS_TERMCAP_so=$'\E[01;44;33m'
+export LESS_TERMCAP_ue=$'\E[0m'
+export LESS_TERMCAP_us=$'\E[01;32m'

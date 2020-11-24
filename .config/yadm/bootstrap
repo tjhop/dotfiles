@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+YADM_CONFIG_DIR="$HOME/.config/yadm"
+
+echo "[yadm bootstrap]: entrypoint"
+
+for script in "${YADM_CONFIG_DIR}"/bootstrap-scripts/*.sh; do
+    echo "[yadm bootstrap] entrypoint: executing <$script>"
+    bash "$script" | tee "${script/sh/log}" || break
+done
