@@ -89,7 +89,6 @@ alias gcom='git commit'
 alias gcoma='git commit --amend'
 alias gcomane='git commit --amend --no-edit'
 alias update-git-repos="for d in *; do pushd \${d}; git pull origin master; popd; done"
-alias dotfile-git='git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 
 #colored man pages
 export LESS_TERMCAP_mb=$'\E[01;31m'
