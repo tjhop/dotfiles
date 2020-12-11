@@ -79,7 +79,8 @@ function gcppd() {
     git push origin master
     git branch -D "$WORKING_BRANCH"
 }
-alias gscpp='git stash ; git checkout master ; git pull --rebase upstream master ; git push origin master'
+alias gscpp='git stash ; gcpp ; git stash pop'
+alias gscppd='git stash ; gcppd ; git stash pop'
 function gpbpr() {
     # gpb == git push branch to bits for PR
     local WORKING_BRANCH=$(git branch | grep '^*' | cut -d' ' -f2)
