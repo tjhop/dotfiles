@@ -12,8 +12,14 @@ compinit
 
 # syntax highlighting, etc
 case "$OSTYPE" in
-    linux*)     source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ;;
-    darwin*)    source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ;;
+    linux*)
+        source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+        source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+        ;;
+    darwin*)
+        source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+        source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+        ;;
 esac
 
 # still use emacs style keybinds on shell command line
@@ -21,6 +27,9 @@ bindkey -e
 
 # allow reverse menu completions
 bindkey '^[[Z' reverse-menu-complete
+
+# accept current autosuggestion
+bindkey '^ ' autosuggest-accept
 
 # allow editing command line in editor (ie, vim)
 export EDITOR='vim'
