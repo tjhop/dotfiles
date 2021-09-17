@@ -8,3 +8,47 @@ Setup dotfiles by cloning this repo with `yadm` (boostrap files are included in 
 ```
 yadm clone --bootstrap https://github.com/tjhop/dotfiles.git
 ```
+
+### Vim
+
+Plugins are managed as submodules.
+
+#### Add plugin
+
+```bash
+yadm submodule add $GIT_REPO $HOME/.vim/pack/plugins/start/$REPO_NAME
+```
+
+#### Removing plugin
+
+```bash
+yadm submodule deinit -f -- $HOME/.vim/pack/plugins/start/$REPO_NAME
+```
+
+#### Updating plugins
+
+```bash
+yadm submodule update --remote
+```
+
+### Tmux
+
+Plugins are managed as submodules.
+
+#### Add plugin
+
+```bash
+yadm submodule add $GIT_REPO $HOME/.tmux/plugins/$REPO_NAME
+```
+
+#### Removing plugin
+
+```bash
+yadm submodule deinit -f -- $HOME/.tmux/plugins/$REPO_NAME
+```
+
+#### Updating plugins
+
+```bash
+yadm submodule update --remote
+```
