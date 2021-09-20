@@ -61,6 +61,8 @@ alias gds='git diff --staged'
 alias gb='git branch'
 alias gc='git checkout'
 alias gcb='git checkout -b'
+alias gf='git fetch'
+alias gp='git pull'
 alias gr='git pull --rebase upstream master'
 alias grm='git rm'
 function gcmp() {
