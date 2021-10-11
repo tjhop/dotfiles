@@ -108,6 +108,10 @@ nnoremap <leader>mpe :MarkdownPreviewStop<CR>
 " -------------------
 let g:airline_solarized_bg='dark'
 
+" Vim Go configs
+" --------------
+let g:go_imports_autosave = 0
+
 " Load all plugins and generate helptags for them
 " -----------------------------------------------
 packloadall
