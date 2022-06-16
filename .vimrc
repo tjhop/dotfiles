@@ -29,6 +29,7 @@ set ttyfast                        " enable faster terminal rendering
 set lazyredraw                     " don't redraw when executing macros/registers/untyped commands
 " set autoread                       " re-read file when it's contents have been changed outside of vim
 syntax enable                      " enable syntax highlighting
+set foldlevelstart=99              " when folding is enabled, always open expanded, never auto close folds
 
 " define ',' as leader and add some custom keybindings
 let mapleader=","
@@ -111,6 +112,7 @@ let g:airline_solarized_bg='dark'
 " Vim Go configs
 " --------------
 let g:go_imports_autosave = 0
+let g:go_fmt_autosave = 0
 
 " Load all plugins and generate helptags for them
 " -----------------------------------------------
