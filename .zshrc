@@ -108,3 +108,10 @@ fi
 if [ -f "$HOME/github/z/z.sh" ]; then
     source "$HOME/github/z/z.sh"
 fi
+
+# ensure tmux session is spawned and attached
+TMUX_SESSION_NAME="$(whoami)"
+if [ ! -n "${TMUX+set}" ]; then
+    tmux attach -t ${TMUX_SESSION_NAME} 2>/dev/null || \
+        tmux new-session -s ${TMUX_SESSION_NAME}
+fi
