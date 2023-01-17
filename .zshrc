@@ -109,6 +109,8 @@ if [ -f "$HOME/github/z/z.sh" ]; then
     source "$HOME/github/z/z.sh"
 fi
 
+eval "$(direnv hook zsh)"
+
 # ensure tmux session is spawned and attached
 TMUX_SESSION_NAME="$(whoami)"
 if [ ! -n "${TMUX+set}" ]; then
