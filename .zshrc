@@ -87,6 +87,12 @@ if [[ -d "$HOME/bin" ]]; then
 	export PATH="$HOME/bin:$PATH"
 fi
 
+# add XDG spec bin dir
+# https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
+if [[ -d "$HOME/.local/bin" ]]; then
+	export PATH="$HOME/.local/bin:$PATH"
+fi
+
 # if there's a Rust Cargo bin directory, add it to path
 if [[ -d "$HOME/.cargo/bin" ]]; then
 	export PATH="$HOME/.cargo/bin:$PATH"
