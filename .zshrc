@@ -98,13 +98,6 @@ if [[ -d "$HOME/.cargo/bin" ]]; then
 	export PATH="$HOME/.cargo/bin:$PATH"
 fi
 
-# export GO environment info
-if [[ -d "$HOME/go" ]]; then
-    export GOPATH="$(go env GOPATH)"
-    export GOBIN="$(go env GOPATH)/bin"
-    export PATH="$PATH:$GOBIN"
-fi
-
 # export work scripts to path
 if [ -d $HOME/work/scripts ]; then
   export PATH=$PATH:$HOME/work/scripts
