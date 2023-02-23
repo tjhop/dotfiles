@@ -109,6 +109,12 @@ if [ -f "$HOME/github/z/z.sh" ]; then
     source "$HOME/github/z/z.sh"
 fi
 
+# if asdf installed, source it
+ASDF="$HOME/github/asdf/asdf.sh"
+if [ -f $ASDF ]; then
+    source $ASDF
+fi
+
 eval "$(direnv hook zsh)"
 
 # ensure tmux session is spawned and attached
