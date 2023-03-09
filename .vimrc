@@ -92,7 +92,7 @@ let NERDTreeShowHidden=1      " show hidden files/dirs
 let NERDTreeMinimalUI=1       " hide help menu
 let g:NERDTreeWinSize=30      " limit NERDTree window to 30 chars
 
-nnoremap <leader>t :NERDTreeToggle<CR>     " toggle NERDTree with leader+t
+nnoremap <leader>t :NERDTreeFind<CR>     " toggle NERDTree with leader+t
 
 " NERDcommenter configs
 " --------------------
