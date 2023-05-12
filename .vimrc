@@ -46,6 +46,10 @@ nmap <leader>v :read !clip paste<CR>     " read input from system clipboard
                                          " expects: https://github.com/tjhop/clip
 nmap <leader>a ggVG                      " 'select all'
 
+" search for visual selection with `//`
+" https://vim.fandom.com/wiki/Search_for_visually_selected_text
+vnoremap // y/\V<C-R>=escape(@",'/\')<CR><CR>
+
 " set default tabbing behavior
 set expandtab
 set softtabstop=4
