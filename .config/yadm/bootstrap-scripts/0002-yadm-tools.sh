@@ -11,6 +11,7 @@ echo "[$(basename $0)]: initializing asdf"
 asdf_dir="$HOME/github/asdf"
 mkdir -p $asdf_dir
 git clone https://github.com/asdf-vm/asdf.git $asdf_dir
+source $asdf_dir/asdf.sh
 
 asdf_tools=(
     "awscli"
