@@ -6,7 +6,7 @@ This repo is being managed via [yadm](https://github.com/TheLocehiliosan/yadm), 
 
 Setup dotfiles by cloning this repo with `yadm` (boostrap files are included in this repo and will run automatically after clone):
 ```
-yadm clone --bootstrap https://github.com/tjhop/dotfiles.git
+yadm clone --recurse-submodules --bootstrap https://github.com/tjhop/dotfiles.git
 ```
 
 ### Vim
@@ -28,7 +28,7 @@ yadm submodule deinit -f -- $HOME/.vim/pack/plugins/start/$REPO_NAME
 #### Updating plugins
 
 ```bash
-yadm submodule update --remote
+yadm submodule update --remote --recursive
 ```
 
 ### Tmux
@@ -50,5 +50,5 @@ yadm submodule deinit -f -- $HOME/.tmux/plugins/$REPO_NAME
 #### Updating plugins
 
 ```bash
-yadm submodule update --remote
+yadm submodule update --remote --recursive
 ```
