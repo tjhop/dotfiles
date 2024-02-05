@@ -49,7 +49,8 @@ zstyle ':vcs_info:*' enable git
 zstyle ':vcs_info:*' check-for-changes true
 zstyle ':vcs_info:*' actionformats '%F{blue}(%b | %a [ %c%u ])%f '
 zstyle ':vcs_info:*' formats '%F{blue}(%b [ %c%u ])%f '
-# zstyle ':vcs_info:git:*' formats '%b'
+
+PROMPT=$'${(r:$COLUMNS::\u2500:)}'$PROMPT
 
 # set history 
 HISTFILE="$HOME/.history"
