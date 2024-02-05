@@ -114,6 +114,11 @@ if [ -f $ASDF ]; then
     source $ASDF
 fi
 
+# if go installed, set GOBIN
+command -v go &>/dev/null && \
+    export GOBIN="$(go env GOPATH)/bin" && \
+    export PATH="$PATH:$GOBIN"
+
 eval "$(direnv hook zsh)"
 
 # ensure tmux session is spawned and attached
