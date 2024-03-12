@@ -42,6 +42,7 @@ nmap <leader>R :source $HOME/.vimrc <CR> " re-source vim config
 nmap <leader>T :terminal <CR>
 nmap <leader>dt :windo diffthis<CR>      " enable diff
 nmap <leader>do :windo diffoff<CR>       " disable diff
+nmap <leader>y :.w !clip copy<CR><CR>    " write current line to system clipboard
 nmap <leader>v :read !clip paste<CR>     " read input from system clipboard
                                          " expects: https://github.com/tjhop/clip
 nmap <leader>a ggVG                      " 'select all'
