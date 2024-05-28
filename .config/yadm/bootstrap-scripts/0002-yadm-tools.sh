@@ -14,20 +14,10 @@ git clone https://github.com/asdf-vm/asdf.git $asdf_dir
 source $asdf_dir/asdf.sh
 
 asdf_tools=(
-    "awscli"
-    "doctl"
     "golang"
     "golangci-lint"
-    "helm"
-    "kind"
     "kubectl"
-    "loki-logcli"
-    "minikube"
-    "nodejs"
     "python"
-    "terraform"
-    "vault"
-    "yarn"
 )
 
 for tool in "${asdf_tools[@]}"; do
