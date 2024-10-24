@@ -135,6 +135,14 @@ nmap <leader>Gf :GoFmt<CR>
 nmap <leader>Gi :GoImports<CR>
 nmap <leader>Gd :GoDoc<CR>
 
+" ALE keybindings
+" ---------------
+nmap <leader>Af :ALEFindReferences<CR>
+nmap <leader>Agd :ALEGoToDefinition -tab<CR>
+nmap <leader>An :ALENextWrap<CR>
+nmap <leader>Ap :ALEPreviousWrap<CR>
+nmap <leader>Ar :ALERename<CR>
+
 " Load all plugins and generate helptags for them
 " -----------------------------------------------
 packloadall
