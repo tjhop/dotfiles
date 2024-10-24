@@ -80,12 +80,12 @@ elseif colorscheme_in_use == 'gruvbox'
 endif
 
 " vim-fugitive configs (git commands)
-nnoremap <leader>gs :Git<CR>
-nnoremap <leader>gd :Gvdiffsplit<CR>
-nnoremap <leader>gb :Git blame<CR>
-nnoremap <leader>gc :Git commit<CR>
-nnoremap <leader>gmv :GMove<CR>
-nnoremap <leader>grm :GRemove<CR>:q<CR>
+nmap <leader>gs :Git<CR>
+nmap <leader>gd :Gvdiffsplit<CR>
+nmap <leader>gb :Git blame<CR>
+nmap <leader>gc :Git commit<CR>
+nmap <leader>gmv :GMove<CR>
+nmap <leader>grm :GRemove<CR>:q<CR>
 
 " gitgutter settings
 set updatetime=100
