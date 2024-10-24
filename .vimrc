@@ -129,6 +129,12 @@ let g:go_info_mode='gopls'
 let g:go_rename_command='gopls'
 let g:go_fillstruct_mode='gopls'
 
+" Go Keybindings
+" --------------
+nmap <leader>Gf :GoFmt<CR>
+nmap <leader>Gi :GoImports<CR>
+nmap <leader>Gd :GoDoc<CR>
+
 " Load all plugins and generate helptags for them
 " -----------------------------------------------
 packloadall
