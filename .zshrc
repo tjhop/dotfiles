@@ -120,6 +120,9 @@ command -v go &>/dev/null && \
     export GOBIN="$(go env GOPATH)/bin" && \
     export PATH="$PATH:$GOBIN"
 
+# Set up fzf key bindings and fuzzy completion
+source <(fzf --zsh) || echo "Failed to set up fzf zsh shell integrations"
+
 eval "$(direnv hook zsh)"
 
 # ensure tmux session is spawned and attached
