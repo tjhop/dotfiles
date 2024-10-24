@@ -30,6 +30,7 @@ set lazyredraw                     " don't redraw when executing macros/register
 " set autoread                       " re-read file when it's contents have been changed outside of vim
 syntax enable                      " enable syntax highlighting
 set foldlevelstart=99              " when folding is enabled, always open expanded, never auto close folds
+set spell spelllang=en_us          " enable spell checking
 
 " define ',' as leader and add some custom keybindings
 let mapleader=","
