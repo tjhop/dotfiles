@@ -65,6 +65,7 @@ alias gf='git fetch'
 alias gp='git pull'
 alias gr='git pull --rebase upstream master'
 alias grm='git rm'
+alias gmt='git mergetool'
 function gcmp() {
     # gcmp == git checkout master, merge, && push to origin's master
     local WORKING_BRANCH=$(git branch | grep '^*' | cut -d' ' -f2)
