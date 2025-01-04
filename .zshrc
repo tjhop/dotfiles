@@ -60,49 +60,54 @@ setopt INC_APPEND_HISTORY HIST_IGNORE_DUPS HIST_EXPIRE_DUPS_FIRST HIST_FIND_NO_D
 
 # if local shell configs file is found for shell configs specific to this system, source them too
 if [[ -f "$HOME/.zshrc.local" ]]; then
-	source "$HOME/.zshrc.local"
+        source "$HOME/.zshrc.local"
 fi
 
 # source main alias file
 if [[ -f "$HOME/.aliases" ]]; then
-	source "$HOME/.aliases"
+        source "$HOME/.aliases"
 fi
 
 # if local aliases file is found for aliases specific to this machine, source them too
 if [[ -f "$HOME/.aliases.local" ]]; then
-	source "$HOME/.aliases.local"
+        source "$HOME/.aliases.local"
 fi
 
 # source environment variables file
 if [[ -f "$HOME/.env_vars" ]]; then
-	source "$HOME/.env_vars"
+        source "$HOME/.env_vars"
 fi
 
 # if local env_vars file is found for env_vars specific to this machine, source them too
 if [[ -f "$HOME/.env_vars.local" ]]; then
-	source "$HOME/.env_vars.local"
+        source "$HOME/.env_vars.local"
 fi
 
 # if there's a ~/bin directory, add it to path
 if [[ -d "$HOME/bin" ]]; then
-	export PATH="$HOME/bin:$PATH"
+     export PATH="$HOME/bin:$PATH"
 fi
 
 # add XDG spec bin dir
 # https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
 if [[ -d "$HOME/.local/bin" ]]; then
-	export PATH="$HOME/.local/bin:$PATH"
+       export PATH="$HOME/.local/bin:$PATH"
 fi
 
 # if there's a Rust Cargo bin directory, add it to path
-if [[ -d "$HOME/.cargo/bin" ]]; then
-	export PATH="$HOME/.cargo/bin:$PATH"
-fi
+ if [[ -d "$HOME/.cargo/bin" ]]; then
+        export PATH="$HOME/.cargo/bin:$PATH"
+ fi
 
-# export work scripts to path
-if [ -d $HOME/work/scripts ]; then
-  export PATH=$PATH:$HOME/work/scripts
-fi
+ # export work scripts to path
+ if [ -d $HOME/work/scripts ]; then
+   export PATH=$PATH:$HOME/work/scripts
+ fi
+
+ # if go installed, set GOBIN
+ command -v go &>/dev/null && \
+     export GOBIN="$(go env GOPATH)/bin" && \
+     export PATH="$PATH:$GOBIN"
 
 # if z script is installed, source it
 if [ -f "$HOME/github/z/z.sh" ]; then
@@ -114,11 +119,6 @@ ASDF="$HOME/github/asdf/asdf.sh"
 if [ -f $ASDF ]; then
     source $ASDF
 fi
-
-# if go installed, set GOBIN
-command -v go &>/dev/null && \
-    export GOBIN="$(go env GOPATH)/bin" && \
-    export PATH="$PATH:$GOBIN"
 
 # Set up fzf key bindings and fuzzy completion
 source <(fzf --zsh) || echo "Failed to set up fzf zsh shell integrations"
