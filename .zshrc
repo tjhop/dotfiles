@@ -13,8 +13,8 @@ compinit
 # syntax highlighting, etc
 case "$OSTYPE" in
     linux*)
-        source /usr/share/**/zsh-syntax-highlighting.zsh
-        source /usr/share/**/zsh-autosuggestions.zsh
+        source "$(find /usr/share -name 'zsh-syntax-highlighting.zsh' -print 2>/dev/null)"
+        source "$(find /usr/share -name 'zsh-autosuggestions.zsh' -print 2>/dev/null)"
 
         ;;
     darwin*)
