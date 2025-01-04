@@ -126,8 +126,4 @@ source <(fzf --zsh) || echo "Failed to set up fzf zsh shell integrations"
 eval "$(direnv hook zsh)"
 
 # ensure tmux session is spawned and attached
-TMUX_SESSION_NAME="$(whoami)"
-if [ ! -n "${TMUX+set}" ]; then
-    tmux attach -t ${TMUX_SESSION_NAME} 2>/dev/null || \
-        tmux new-session -s ${TMUX_SESSION_NAME}
-fi
+[ -z $TMUX ] && exec tmux new-session -A -s "$(whoami)"
