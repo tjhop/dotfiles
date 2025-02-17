@@ -105,3 +105,17 @@ export LESS_TERMCAP_us=$'\E[01;32m'
 
 # kubernetes
 alias k='kubectl'
+
+# Stealing the `append_path` function from `/etc/profile` to help with $PATH
+# management.
+#
+# Append "$1" to $PATH when not already in.
+# This function API is accessible to scripts in /etc/profile.d
+append_path () {
+    case ":$PATH:" in
+        *:"$1":*)
+            ;;
+        *)
+            PATH="${PATH:+$PATH:}$1"
+    esac
+}

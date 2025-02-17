@@ -83,42 +83,17 @@ if [[ -f "$HOME/.env_vars.local" ]]; then
         source "$HOME/.env_vars.local"
 fi
 
-# if there's a ~/bin directory, add it to path
-if [[ -d "$HOME/bin" ]]; then
-     export PATH="$HOME/bin:$PATH"
-fi
-
 # add XDG spec bin dir
 # https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
-if [[ -d "$HOME/.local/bin" ]]; then
-       export PATH="$HOME/.local/bin:$PATH"
-fi
-
-# if there's a Rust Cargo bin directory, add it to path
- if [[ -d "$HOME/.cargo/bin" ]]; then
-        export PATH="$HOME/.cargo/bin:$PATH"
- fi
-
- # export work scripts to path
- if [ -d $HOME/work/scripts ]; then
-   export PATH=$PATH:$HOME/work/scripts
- fi
+append_path "$HOME/.local/bin"
 
  # if go installed, set GOBIN
  command -v go &>/dev/null && \
      export GOBIN="$(go env GOPATH)/bin" && \
-     export PATH="$PATH:$GOBIN"
+     append_path "$GOBIN"
 
-# if z script is installed, source it
-if [ -f "$HOME/github/z/z.sh" ]; then
-    source "$HOME/github/z/z.sh"
-fi
-
-# if asdf installed, source it
-ASDF="$HOME/github/asdf/asdf.sh"
-if [ -f $ASDF ]; then
-    source $ASDF
-fi
+# source z script
+source "$HOME/github/z/z.sh" || echo "z not installed"
 
 # Set up fzf key bindings and fuzzy completion
 source <(fzf --zsh) || echo "Failed to set up fzf zsh shell integrations"
