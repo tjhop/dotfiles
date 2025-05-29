@@ -135,6 +135,27 @@ nmap <leader>Gf :GoFmt<CR>
 nmap <leader>Gi :GoImports<CR>
 nmap <leader>Gd :GoDoc<CR>
 
+" Load all plugins and generate helptags for them
+" -----------------------------------------------
+packloadall
+silent! helptags ALL
+
+" Everything after this requires plugins to be loaded
+" ---------------------------------------------------
+
+" lsp settings
+call LspOptionsSet(#{noNewlineInCompletion: v:true})
+
+" Go language server
+call LspAddServer([#{
+	\    name: 'golang',
+	\    filetype: ['go', 'gomod'],
+	\    path: 'gopls',
+	\    args: ['serve'],
+	\    syncInit: v:true
+	\  }])
+
+"
 " ALE keybindings
 " ---------------
 nmap <leader>Af :ALEFindReferences<CR>
@@ -142,8 +163,3 @@ nmap <leader>Agd :ALEGoToDefinition -tab<CR>
 nmap <leader>An :ALENextWrap<CR>
 nmap <leader>Ap :ALEPreviousWrap<CR>
 nmap <leader>Ar :ALERename<CR>
-
-" Load all plugins and generate helptags for them
-" -----------------------------------------------
-packloadall
-silent! helptags ALL
