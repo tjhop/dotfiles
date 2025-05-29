@@ -73,3 +73,9 @@
 [submodule "/home/tjhop/.vim/pack/plugins/start/fzf.vim"]
 	path = /home/tjhop/.vim/pack/plugins/start/fzf.vim
 	url = https://github.com/junegunn/fzf.vim
+[submodule "/home/tjhop/.vim/pack/plugins/start/vimcomplete"]
+	path = /home/tjhop/.vim/pack/plugins/start/vimcomplete
+	url = https://github.com/girishji/vimcomplete
+[submodule "/home/tjhop/.vim/pack/plugins/start/lsp"]
+	path = /home/tjhop/.vim/pack/plugins/start/lsp
+	url = https://github.com/yegappan/lsp
