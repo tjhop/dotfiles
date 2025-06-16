@@ -87,6 +87,9 @@ fi
 # https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
 append_path "$HOME/.local/bin"
 
+# setup global packages via devbox
+eval "$(devbox global shellenv)"
+
  # if go installed, set GOBIN
  command -v go &>/dev/null && \
      export GOBIN="$(go env GOPATH)/bin" && \
