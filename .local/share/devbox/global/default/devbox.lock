@@ -675,6 +675,54 @@
         }
       }
     },
+    "vault@latest": {
+      "last_modified": "2025-06-05T08:10:37Z",
+      "resolved": "github:NixOS/nixpkgs/ec62ae342c340d24289735e31eb9155261cd5fe7#vault",
+      "source": "devbox-search",
+      "version": "1.19.5",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/nhxs3g7ps54faz2d0wn112kiyjjfsx39-vault-1.19.5",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/nhxs3g7ps54faz2d0wn112kiyjjfsx39-vault-1.19.5"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/pga81vzldxv1pirrm5c6099xz87rwl9x-vault-1.19.5",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/pga81vzldxv1pirrm5c6099xz87rwl9x-vault-1.19.5"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/ac9sgq0kwa82wsn68dhd47x1pjf0k0qp-vault-1.19.5",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/ac9sgq0kwa82wsn68dhd47x1pjf0k0qp-vault-1.19.5"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/387f3j61g9vmqdibj28riv0hymzlwi5d-vault-1.19.5",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/387f3j61g9vmqdibj28riv0hymzlwi5d-vault-1.19.5"
+        }
+      }
+    },
     "yarn@latest": {
       "last_modified": "2025-05-16T20:19:48Z",
       "resolved": "github:NixOS/nixpkgs/12a55407652e04dcf2309436eb06fef0d3713ef3#yarn",

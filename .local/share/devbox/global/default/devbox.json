@@ -13,7 +13,8 @@
     "terraform@latest",
     "yarn@latest",
     "go@latest",
-    "fzf@latest"
+    "fzf@latest",
+    "vault@latest"
   ],
   "shell": {
     "init_hook": [
