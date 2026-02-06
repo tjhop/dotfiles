@@ -1,10 +1,30 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
 YADM_CONFIG_DIR="$HOME/.config/yadm"
+failed_scripts=()
 
 echo "[yadm bootstrap]: entrypoint"
 
 for script in "${YADM_CONFIG_DIR}"/bootstrap-scripts/*.sh; do
     echo "[yadm bootstrap] entrypoint: executing <$script>"
-    bash "$script" | tee "${script/sh/log}" || break
+    if bash "$script" 2>&1 | tee "${script/sh/log}"; then
+        echo "[yadm bootstrap] entrypoint: <$script> succeeded"
+    else
+        echo "[yadm bootstrap] entrypoint: <$script> failed"
+        failed_scripts+=("$script")
+    fi
 done
+
+echo ""
+echo "[yadm bootstrap]: summary"
+if [[ ${#failed_scripts[@]} -eq 0 ]]; then
+    echo "[yadm bootstrap]: all scripts completed successfully"
+    exit 0
+else
+    echo "[yadm bootstrap]: the following scripts failed:"
+    for script in "${failed_scripts[@]}"; do
+        echo "  - $script"
+    done
+    exit 1
+fi
