@@ -14,7 +14,7 @@
     "yarn@latest",
     "go@latest",
     "fzf@latest",
-    "vault@latest"
+    "go-task@latest"
   ],
   "shell": {
     "init_hook": [
