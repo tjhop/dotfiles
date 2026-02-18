@@ -1,0 +1,80 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cat:*)",
+      "Bash(curl:*)",
+      "Bash(find:*)",
+      "Bash(gh issue:*)",
+      "Bash(gh pr:*)",
+      "Bash(gh release download:*)",
+      "Bash(gh release list:*)",
+      "Bash(gh release view:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git ls-remote:*)",
+      "Bash(git status:*)",
+      "Bash(git submodule:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(go clean:*)",
+      "Bash(go doc:*)",
+      "Bash(go env:*)",
+      "Bash(go get:*)",
+      "Bash(go list:*)",
+      "Bash(go mod:*)",
+      "Bash(go run:*)",
+      "Bash(go test:*)",
+      "Bash(go version:*)",
+      "Bash(grep:*)",
+      "Bash(head:*)",
+      "Bash(ls:*)",
+      "Bash(make:*)",
+      "Bash(tail:*)",
+      "Bash(wc:*)",
+      "WebFetch(domain:api.github.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebSearch",
+      "mcp__context7__*",
+      "mcp__prometheus__*"
+    ],
+    "deny": [
+      "Bash(go build *)",
+      "Bash(git reset *)",
+      "Bash(git rebase *)",
+      "Bash(git stash *)",
+      "Bash(git push *)"
+    ],
+    "defaultMode": "default"
+  },
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "permission_prompt",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "notify-send -u critical -a 'Claude Code' 'Permission Needed' \"$(cat | jq -r '.message // \"Claude Code needs permission to proceed\"')\" && printf '\\a' > \"$(tmux display-message -p -t \"${TMUX_PANE}\" '#{pane_tty}')\""
+          }
+        ]
+      },
+      {
+        "matcher": "idle_prompt",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "notify-send -u normal -a 'Claude Code' 'Waiting for Input' \"$(cat | jq -r '.message // \"Claude Code is waiting for your input\"')\" && printf '\\a' > \"$(tmux display-message -p -t \"${TMUX_PANE}\" '#{pane_tty}')\""
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "input=$(cat); dir=$(echo \"$input\" | jq -r '.workspace.current_dir'); git_info=\"\"; if git -C \"$dir\" rev-parse --git-dir >/dev/null 2>&1; then branch=$(git -C \"$dir\" --no-optional-locks branch --show-current 2>/dev/null); if [ -n \"$branch\" ]; then changes=\"\"; if ! git -C \"$dir\" --no-optional-locks diff --quiet 2>/dev/null || ! git -C \"$dir\" --no-optional-locks diff --cached --quiet 2>/dev/null; then changes=\"*\"; fi; git_info=$(printf '\\033[34m(%s%s)\\033[0m ' \"$branch\" \"$changes\"); fi; fi; printf '\\033[36m%s\\033[0m %s-> ' \"$dir\" \"$git_info\""
+  },
+  "enabledPlugins": {
+    "gopls-lsp@claude-plugins-official": true
+  }
+}
