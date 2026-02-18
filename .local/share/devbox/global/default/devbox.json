@@ -14,7 +14,11 @@
     "yarn@latest",
     "go@latest",
     "fzf@latest",
-    "go-task@latest"
+    "go-task@latest",
+    "uv@latest",
+    "python314Packages.tkinter@latest",
+    "tk@latest",
+    "tcl@latest"
   ],
   "shell": {
     "init_hook": [
