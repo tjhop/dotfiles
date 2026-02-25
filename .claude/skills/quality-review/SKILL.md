@@ -109,11 +109,17 @@ Each agent must:
 - Reference specific files and line numbers for every finding
 - Rate each finding as **high**, **medium**, or **low** priority
 - Keep findings concise -- one to two sentences per issue
-- Distinguish between definite bugs and subjective suggestions
+- Classify each finding as either **actionable** or **informational** (defined below)
+
+**Actionable**: The code should change. Covers bugs, logical errors, correctness issues, meaningful improvements, and anything with a clear corrective step -- regardless of priority.
+
+**Informational**: The code is acceptable as-is, but the finding is worth knowing. This includes: architectural tradeoffs, deferred design debt, known limitations, cross-cutting patterns that explain non-obvious behavior, and systemic issues that have no single fix. Do not use this classification to soften a real bug or avoid a hard conversation -- if something should be fixed, it is actionable.
 
 ### 3. Compile Results
 
-After all agents complete, compile their findings into a single structured summary:
+After all agents complete, compile their findings. **Check whether a `QUALITY.md` exists in the project root before formatting output** -- this controls how informational notes are presented (see Step 4).
+
+When `QUALITY.md` does **not** exist, use this full format:
 
 ```
 ## Quality Review Summary
@@ -121,21 +127,82 @@ After all agents complete, compile their findings into a single structured summa
 **Scope**: <all | branch (N files from branch `branch-name`)>
 **Project**: <detected language/framework>
 
-### High Priority
+### Actionable Findings
+
+#### High Priority
 - [Category] file:line - description
 
-### Medium Priority
+#### Medium Priority
 - [Category] file:line - description
 
-### Low Priority
+#### Low Priority
+- [Category] file:line - description
+
+### Informational Notes
 - [Category] file:line - description
 
 ### Stats
-- Total findings: N
+- Actionable findings: N (High: N, Medium: N, Low: N)
+- Informational notes: N
 - By category: Correctness (N), Simplification (N), Tests (N), Naming/Idioms (N), Domain (N)
 ```
 
-### 4. Present for Action
+When `QUALITY.md` **exists**, omit the Informational Notes section from the output and replace it with a single status line after Stats (see Step 4 for how to produce it):
+
+```
+## Quality Review Summary
+
+**Scope**: <all | branch (N files from branch `branch-name`)>
+**Project**: <detected language/framework>
+
+### Actionable Findings
+
+#### High Priority
+- [Category] file:line - description
+
+#### Medium Priority
+- [Category] file:line - description
+
+#### Low Priority
+- [Category] file:line - description
+
+### Stats
+- Actionable findings: N (High: N, Medium: N, Low: N)
+- Informational notes: N (tracked in QUALITY.md -- M added, P removed, Q updated)
+- By category: Correctness (N), Simplification (N), Tests (N), Naming/Idioms (N), Domain (N)
+```
+
+In both cases: if there are no actionable findings, state that explicitly rather than leaving the section empty. If there are no informational notes, omit that section (or zero out the counts in the stats line).
+
+### 4. Reconcile or Create QUALITY.md
+
+Before presenting the summary to the user, handle informational notes as follows based on whether `QUALITY.md` already exists.
+
+#### If QUALITY.md exists
+
+Reconcile the informational notes from this review against the existing document:
+
+- **Add** findings not already covered by an existing entry. A finding is "already covered" if an existing entry describes the same issue at the same or nearby location -- do not add near-duplicates.
+- **Remove** entries that are no longer relevant. An entry is stale if the code it references has been changed in a way that resolves or invalidates the concern (e.g., the code was deleted, refactored, or the issue was fixed).
+- **Update** entries where the nature or location of the issue has shifted -- e.g., the same concern now manifests differently or has moved to a different file.
+
+After reconciling, update `QUALITY.md` in place. Do not show the informational notes inline in the review summary. Instead, include only the stats line described in Step 3: `N added, P removed, Q updated`. Tell the user to review the document for informational context. Keep the review output focused on actionable findings.
+
+#### If QUALITY.md does not exist
+
+Evaluate whether the informational notes warrant creating a persistent `QUALITY.md`. A dedicated document is only appropriate when **all** of the following are true:
+
+1. There are **5 or more** informational notes, **or** the notes describe systemic, cross-cutting issues that span multiple files.
+2. The notes cannot be adequately captured as inline code comments -- i.e., they lack a single natural home in the code, describe project-wide patterns, or represent architectural context that would be lost or fragmented if split across comment sites.
+
+If these conditions are met, offer to create the document after presenting the summary. Do not create it automatically. Describe what it would contain and why inline comments are insufficient for this particular content.
+
+If a `QUALITY.md` is created:
+- It should group notes by theme (e.g., Architecture, Design Debt, Known Limitations, Testing Gaps).
+- Each entry should include: location reference, a concise description, and why it is deferred rather than fixed.
+- After creating the file, check for a `CLAUDE.md` in the project root. If one exists, add a brief reference to `QUALITY.md` so future sessions are aware of it. If none exists, note this to the user but do not create one unprompted.
+
+### 5. Present for Action
 
 After presenting the summary, ask the user which findings (if any) they want to address. Do not proceed with fixes until directed.
 
