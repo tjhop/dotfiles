@@ -4,21 +4,17 @@
     "llama-cpp@latest",
     "awscli@latest",
     "doctl@latest",
-    "helm@latest",
     "kind@latest",
     "kubectl@latest",
     "minikube@latest",
     "nodejs@latest",
-    "python@latest",
     "terraform@latest",
     "yarn@latest",
     "go@latest",
     "fzf@latest",
     "go-task@latest",
     "uv@latest",
-    "python314Packages.tkinter@latest",
-    "tk@latest",
-    "tcl@latest"
+    "kubernetes-helm@latest"
   ],
   "shell": {
     "init_hook": [
