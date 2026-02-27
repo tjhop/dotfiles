@@ -36,14 +36,14 @@ alias show-aliases='alias && grep "^function" "$HOME/.aliases"'
 
 if [[ "$OSTYPE" == darwin* ]]; then
     # replace macOS's shitty old BSD version of commands with GNU's
-    alias sed='/usr/local/bin/gsed'
-    alias tar='/usr/local/bin/gtar'
-    alias date='/usr/local/bin/gdate'
-    alias find='/usr/local/bin/gfind'
-    alias grep='/usr/local/bin/ggrep'
-    alias md5sum='/usr/local/bin/gmd5sum'
-    alias sha1sum='/usr/local/bin/gsha1sum'
-    alias sha256sum='/usr/local/bin/gsha256sum'
+    alias sed='/opt/homebrew/bin/gsed'
+    alias tar='/opt/homebrew/bin/gtar'
+    alias date='/opt/homebrew/bin/gdate'
+    alias find='/opt/homebrew/bin/gfind'
+    alias grep='/opt/homebrew/bin/ggrep'
+    alias md5sum='/opt/homebrew/bin/gmd5sum'
+    alias sha1sum='/opt/homebrew/bin/gsha1sum'
+    alias sha256sum='/opt/homebrew/bin/gsha256sum'
 fi
 
 # -----------------------------------------
