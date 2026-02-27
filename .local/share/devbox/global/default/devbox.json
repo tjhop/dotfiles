@@ -12,9 +12,10 @@
     "yarn@latest",
     "go@latest",
     "fzf@latest",
-    "go-task@latest",
     "uv@latest",
-    "kubernetes-helm@latest"
+    "kubernetes-helm@latest",
+    "tmux@latest",
+    "direnv@latest"
   ],
   "shell": {
     "init_hook": [
