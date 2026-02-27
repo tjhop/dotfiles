@@ -94,6 +94,16 @@ alias gcoma='git commit --amend'
 alias gcomane='git commit --amend --no-edit'
 alias update-git-repos="for d in *; do pushd \${d}; git pull origin master; popd; done"
 
+# yadm aliases
+alias ya='yadm add'
+alias ys='yadm status'
+alias yd='yadm diff'
+alias yds='yadm diff --staged'
+alias yb='yadm branch'
+alias ycom='yadm commit'
+alias ycoma='yadm commit --amend'
+alias ycomane='yadm commit --amend --no-edit'
+
 #colored man pages
 export LESS_TERMCAP_mb=$'\E[01;31m'
 export LESS_TERMCAP_md=$'\E[01;31m'
