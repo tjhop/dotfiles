@@ -4,9 +4,6 @@
 [submodule ".vim-new/pack/plugins/start/gruvbox"]
 	path = .vim-new/pack/plugins/start/gruvbox
 	url = https://github.com/morhetz/gruvbox.git
-[submodule ".vim/pack/plugins/start/markdown-preview.nvim"]
-	path = .vim/pack/plugins/start/markdown-preview.nvim
-	url = https://github.com/iamcco/markdown-preview.nvim.git
 [submodule ".vim/pack/plugins/start/gruvbox"]
 	path = .vim/pack/plugins/start/gruvbox
 	url = https://github.com/morhetz/gruvbox.git
@@ -79,3 +76,6 @@
 [submodule ".vim/pack/plugins/start/lsp"]
 	path = .vim/pack/plugins/start/lsp
 	url = https://github.com/yegappan/lsp.git
+[submodule ".vim/pack/plugins/start/vim-markdown-preview"]
+	path = .vim/pack/plugins/start/vim-markdown-preview
+	url = https://github.com/tjhop/vim-markdown-preview.git
