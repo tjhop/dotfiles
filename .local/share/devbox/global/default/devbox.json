@@ -15,7 +15,9 @@
     "uv@latest",
     "kubernetes-helm@latest",
     "tmux@latest",
-    "direnv@latest"
+    "direnv@latest",
+    "gh@latest",
+    "git@latest"
   ],
   "shell": {
     "init_hook": [
