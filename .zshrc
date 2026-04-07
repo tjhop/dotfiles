@@ -87,6 +87,9 @@ fi
 # https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
 append_path "$HOME/.local/bin"
 
+# add $HOME/bin too, just in case
+append_path "$HOME/bin"
+
 if [[ -d "$HOME/.npm-global" ]]; then
         append_path "$HOME/.npm-global/bin"
 fi
