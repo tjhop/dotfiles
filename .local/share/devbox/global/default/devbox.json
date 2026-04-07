@@ -5,7 +5,6 @@
     "awscli@latest",
     "doctl@latest",
     "kind@latest",
-    "kubectl@latest",
     "minikube@latest",
     "nodejs@latest",
     "terraform@latest",
@@ -17,7 +16,9 @@
     "tmux@latest",
     "direnv@latest",
     "gh@latest",
-    "git@latest"
+    "git@latest",
+    "k9s@latest",
+    "kubectx@latest"
   ],
   "shell": {
     "init_hook": [
