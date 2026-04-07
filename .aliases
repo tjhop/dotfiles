@@ -63,35 +63,12 @@ alias gc='git checkout'
 alias gcb='git checkout -b'
 alias gf='git fetch'
 alias gp='git pull'
-alias gr='git pull --rebase upstream master'
 alias grm='git rm'
 alias gmt='git mergetool'
-function gcmp() {
-    # gcmp == git checkout master, merge, && push to origin's master
-    local WORKING_BRANCH=$(git branch | grep '^*' | cut -d' ' -f2)
-    git checkout master
-    git merge "$WORKING_BRANCH" --no-edit
-    git push origin master
-}
-alias gcpp='git checkout master ; git pull --rebase upstream master ; git push origin master'
-function gcppd() {
-    # same as `gcpp`, but also deletes the working branch after
-    local WORKING_BRANCH=$(git branch | grep '^*' | cut -d' ' -f2)
-    git checkout master
-    git pull --rebase upstream master
-    git push origin master
-    git branch -D "$WORKING_BRANCH"
-}
-alias gscpp='git stash ; gcpp ; git stash pop'
-alias gscppd='git stash ; gcppd ; git stash pop'
-function gpbpr() {
-    # gpb == git push branch to bits for PR
-    local WORKING_BRANCH=$(git branch | grep '^*' | cut -d' ' -f2)
-    git push origin "$WORKING_BRANCH" "$@"
-}
 alias gcom='git commit'
 alias gcoma='git commit --amend'
 alias gcomane='git commit --amend --no-edit'
+alias gpush='git push'
 alias update-git-repos="for d in *; do pushd \${d}; git pull origin master; popd; done"
 
 # yadm aliases
@@ -103,6 +80,7 @@ alias yb='yadm branch'
 alias ycom='yadm commit'
 alias ycoma='yadm commit --amend'
 alias ycomane='yadm commit --amend --no-edit'
+alias ypush='yadm push'
 
 #colored man pages
 export LESS_TERMCAP_mb=$'\E[01;31m'
