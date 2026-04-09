@@ -1,0 +1,73 @@
+{
+  "skill_name": "knowledge-base",
+  "evals": [
+    {
+      "id": 0,
+      "name": "slog-lazy-handler-init",
+      "prompt": "How does Go's log/slog handle lazy initialization of handlers? Or does it force creation through the handler's constructor functions? I want to know if there's a way to defer handler setup until the first log call.",
+      "expected_output": "Checks KB first (finds existing slog article but it doesn't cover lazy init), researches the topic, then saves findings to ~/.knowledge/ (general Go knowledge). Should create or update a KB article with sources.",
+      "files": [],
+      "expectations": [
+        "Checked the knowledge base (.index files) before starting research",
+        "Found the existing slog article but recognized it doesn't cover lazy handler initialization",
+        "Performed actual research (web search, doc lookup, or code reading) to answer the question",
+        "Saved research findings to a .md file under ~/.knowledge/ (general KB, not projects/)",
+        "Created a .md.index sidecar alongside the article",
+        "Article frontmatter has sources but NOT title, last_modified, or tags",
+        "Index has title, last_modified, tags, summary, triggers, and sources fields",
+        "Response addresses whether slog supports lazy/deferred handler initialization"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "otel-connector-component",
+      "prompt": "I'm looking at the OpenTelemetry Collector's connector component type -- the one that bridges between pipelines. How do connectors work, what are the stable vs experimental ones, and how do they differ from processors?",
+      "expected_output": "Checks KB first (nothing relevant), researches OTel connectors from current docs, saves findings to ~/.knowledge/ (general observability knowledge).",
+      "files": [],
+      "expectations": [
+        "Checked the knowledge base (.index files) before starting research",
+        "Performed web research to find current information about OTel Collector connectors",
+        "Saved research findings to a .md file under ~/.knowledge/ (general KB, not projects/)",
+        "Created a .md.index sidecar alongside the article",
+        "Article frontmatter has sources with URLs (not just titles)",
+        "Index has title, last_modified, tags, summary, triggers, and sources fields",
+        "Response explains how connectors bridge between pipelines and how they differ from processors",
+        "Response includes information about connector stability levels (stable vs experimental)"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "prometheus-upgrade-3.5-to-3.11",
+      "prompt": "We're upgrading Prometheus from 3.5 to 3.11. What are the breaking changes, deprecations, and notable new features across those releases? I need to know what to watch out for.",
+      "expected_output": "Checks KB first, researches Prometheus release notes from 3.5 through 3.11, saves a comprehensive upgrade guide to ~/.knowledge/ (general observability knowledge).",
+      "files": [],
+      "expectations": [
+        "Checked the knowledge base (.index files) before starting research",
+        "Performed web research covering multiple Prometheus releases between 3.5 and 3.11",
+        "Saved research findings to a .md file under ~/.knowledge/ (general KB, not projects/)",
+        "Created a .md.index sidecar alongside the article",
+        "Article frontmatter has sources with URLs",
+        "Index has title, last_modified, tags, summary, triggers, and sources fields",
+        "Response covers breaking changes or deprecations across the upgrade path",
+        "Response covers notable new features introduced between 3.5 and 3.11"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "prometheus-tsdb-head-compaction",
+      "prompt": "How does Prometheus's TSDB head block compaction work -- when does it trigger, what are the key code paths, and how does it interact with the WAL?",
+      "expected_output": "Checks KB first (nothing relevant), researches TSDB head compaction from upstream docs/source, saves findings to ~/.knowledge/ (general knowledge since this is upstream TSDB behavior, not fork-specific).",
+      "files": [],
+      "expectations": [
+        "Checked the knowledge base (.index files) before starting research",
+        "Performed research (web search, upstream docs, or GitHub source reading) on TSDB head compaction",
+        "Saved research findings to a .md file under ~/.knowledge/ (general KB, not projects/)",
+        "Created a .md.index sidecar alongside the article",
+        "Article frontmatter has sources with URLs",
+        "Index has title, last_modified, tags, summary, triggers, and sources fields",
+        "Response explains when head block compaction triggers",
+        "Response explains how head compaction interacts with the WAL"
+      ]
+    }
+  ]
+}
