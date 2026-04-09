@@ -85,6 +85,49 @@ alias ycomane='yadm commit --amend --no-edit'
 alias ypush='yadm push'
 alias ylog='yadm log'
 
+# git worktree helper (inspired by github.com/max-sixty/worktrunk)
+#
+# worktrees are managed as sibling directories named after the branch
+# (slashes in branch names are replaced with dashes in directory names)
+#
+# usage:
+#   wt list                  - list worktrees
+#   wt create <branch>       - create worktree+branch (stays in current dir)
+#   wt switch <branch>       - cd to worktree (creates if needed)
+#   wt remove <branch>       - remove worktree and delete branch
+function wt() {
+    local subcmd="$1"; shift
+
+    # resolve the main worktree root (works from any worktree/directory)
+    local main_root=$(git worktree list --porcelain | head -1 | sed 's/^worktree //')
+    local repo=$(basename "$main_root")
+
+    local branch="$1"
+    local dir_branch="${branch//\//-}"
+    local wt_path="../${repo}.${dir_branch}"
+
+    case "$subcmd" in
+        list|ls)
+            git worktree list
+            ;;
+        create)
+            git worktree add -b "$branch" "$wt_path"
+            ;;
+        switch|sw)
+            if [[ ! -d "$wt_path" ]]; then
+                git worktree add -b "$branch" "$wt_path"
+            fi
+            cd "$wt_path"
+            ;;
+        remove|rm)
+            cd "$main_root" && rm -rf "$wt_path" && git worktree prune && git branch -d "$branch"
+            ;;
+        *)
+            echo "usage: wt {list|create|switch|remove} [branch]"
+            ;;
+    esac
+}
+
 #colored man pages
 export LESS_TERMCAP_mb=$'\E[01;31m'
 export LESS_TERMCAP_md=$'\E[01;31m'
