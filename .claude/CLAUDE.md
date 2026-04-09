@@ -125,7 +125,3 @@ When you believe you've identified a bug, always include:
 | General/workflow | `~/.claude/CLAUDE.md` |
 
 If unsure which applies, ask.
-
-## Documentation References
-
-Collect useful docs/links discovered during work. Add to the project's `CLAUDE.md` under `## Docs References`. Keep entries concise: short description + URL. Group by category if the list grows large.
