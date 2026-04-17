@@ -70,17 +70,16 @@ Treat git as append-only. You may stage and commit, but never revise history:
 - If a change needs correction, create a NEW commit
 
 ### Conventional Commits
-All messages MUST follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/). Include the `*C` tag after the scope to mark LLM-authored commits:
+All messages MUST follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/):
 
 ```
-type(scope*C): brief summary
+type(scope): brief summary
 ```
 
-Examples: `feat(api*C): make timeout configurable`, `fix(manager*C): initialize executedDirectives map`
+Examples: `feat(api): make timeout configurable`, `fix(manager): initialize executedDirectives map`
 
 ### Commit Metadata
-- Always use `--signoff`
-- Every commit MUST include `Signed-off-by` and `Co-Authored-By` trailers for Claude Code and any contributing subagent
+- Every commit MUST include an `Assisted-by` trailer identifying the AI agent and model (per the [Linux kernel coding assistants policy](https://github.com/torvalds/linux/blob/master/Documentation/process/coding-assistants.rst)). Format: `Assisted-by: Claude Code:claude-opus-4-6 <noreply@anthropic.com>`
 - Every commit MUST include a description body (markdown, no emoji): brief context of what changed and why
 
 ### Atomic Changesets
