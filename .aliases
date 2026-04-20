@@ -121,7 +121,7 @@ function wt() {
             cd "$wt_path"
             ;;
         remove|rm)
-            cd "$main_root" && rm -rf "$wt_path" && git worktree prune && git branch -d "$branch"
+            cd "$main_root" && rm -rf "$wt_path" && git worktree prune && git branch -D "$branch"
             ;;
         *)
             echo "usage: wt {list|create|switch|remove} [branch]"
