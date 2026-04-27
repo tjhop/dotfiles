@@ -107,16 +107,28 @@ function wt() {
     local dir_branch="${branch//\//-}"
     local wt_path="../${repo}.${dir_branch}"
 
+    # copy un-tracked direnv/devbox configs from $main_root into a fresh worktree
+    # so a new wt picks up local env+packages even when those files aren't in git.
+    __wt_seed_configs() {
+        local src="$1" dst="$2" f
+        for f in .envrc devbox.json devbox.lock; do
+            if [[ -f "$src/$f" ]] && ! git -C "$src" ls-files --error-unmatch "$f" >/dev/null 2>&1; then
+                cp "$src/$f" "$dst/$f"
+                echo "wt: seeded untracked $f into $dst"
+            fi
+        done
+    }
+
     case "$subcmd" in
         list|ls)
             git worktree list
             ;;
         create)
-            git worktree add -b "$branch" "$wt_path"
+            git worktree add -b "$branch" "$wt_path" && __wt_seed_configs "$main_root" "$wt_path"
             ;;
         switch|sw)
             if [[ ! -d "$wt_path" ]]; then
-                git worktree add -b "$branch" "$wt_path"
+                git worktree add -b "$branch" "$wt_path" && __wt_seed_configs "$main_root" "$wt_path"
             fi
             cd "$wt_path"
             ;;
