@@ -1,0 +1,187 @@
+#!/usr/bin/env bash
+# kb -- knowledge-base CLI helper, paired with the knowledge-base skill.
+#
+# Always invoke this via `bash` so it works without the executable bit:
+#   bash ~/.claude/skills/knowledge-base/bin/kb <subcommand> [args...]
+#
+# Subcommands:
+#   where                Print the resolved KB directory.
+#   ls                   List entries (relative path + summary).
+#   grep <term>          Search KB content (rg if available, else grep -r).
+#   new <topic/path>     Scaffold a <topic/path>.md + .md.index pair.
+#   path <topic/path>    Print the absolute path for a topic entry.
+#   help | -h | --help   Show this message.
+#
+# Path resolution: $AGENTS_KB_DIR if set and non-empty, else ~/.knowledge.
+# This matches the resolution rule documented in SKILL.md, so the helper and
+# the skill always agree on where the KB lives.
+
+set -u
+
+readonly PROG="kb"
+
+kb_dir() {
+    if [ -n "${AGENTS_KB_DIR:-}" ]; then
+        # Strip a trailing slash for tidier output.
+        printf '%s' "${AGENTS_KB_DIR%/}"
+    else
+        printf '%s' "$HOME/.knowledge"
+    fi
+}
+
+require_dir() {
+    local dir="$1"
+    if [ ! -d "$dir" ]; then
+        printf '%s: KB dir does not exist yet: %s\n' "$PROG" "$dir" >&2
+        printf '%s: create it implicitly by writing the first entry, or run `mkdir -p %s`\n' "$PROG" "$dir" >&2
+        return 1
+    fi
+}
+
+cmd_where() {
+    printf '%s\n' "$(kb_dir)"
+}
+
+# List entries by walking *.md.index files. For each, print the entry's
+# relative path (without the .md.index suffix) followed by a short summary
+# pulled from the YAML's `summary:` field. Best-effort YAML parse: tolerant of
+# both `summary: "one line"` and the more common `summary: >\n  multi line`
+# block scalar form. If parsing fails we still print the path.
+cmd_ls() {
+    local dir
+    dir="$(kb_dir)"
+    require_dir "$dir" || return 1
+
+    local idx rel summary
+    while IFS= read -r idx; do
+        rel="${idx#"$dir"/}"
+        rel="${rel%.md.index}"
+        summary="$(awk '
+            BEGIN { inblock = 0 }
+            /^summary:[[:space:]]*>/ { inblock = 1; next }
+            inblock {
+                if ($0 ~ /^[^[:space:]]/) { exit }
+                line = $0
+                sub(/^[[:space:]]+/, "", line)
+                if (line != "") { print line; exit }
+            }
+            /^summary:[[:space:]]*[^>[:space:]]/ {
+                line = $0
+                sub(/^summary:[[:space:]]*/, "", line)
+                gsub(/^"|"$/, "", line)
+                print line
+                exit
+            }
+        ' "$idx" 2>/dev/null)"
+        printf '%s\t%s\n' "$rel" "${summary:-(no summary)}"
+    done < <(find "$dir" -name '*.md.index' -type f 2>/dev/null | sort)
+}
+
+cmd_grep() {
+    if [ "$#" -lt 1 ]; then
+        printf '%s: grep needs a search term\n' "$PROG" >&2
+        return 2
+    fi
+    local dir
+    dir="$(kb_dir)"
+    require_dir "$dir" || return 1
+    if command -v rg >/dev/null 2>&1; then
+        rg --color=auto -n -- "$@" "$dir"
+    else
+        grep -rni --color=auto -- "$1" "$dir"
+    fi
+}
+
+cmd_path() {
+    if [ "$#" -lt 1 ]; then
+        printf '%s: path needs <topic/path>\n' "$PROG" >&2
+        return 2
+    fi
+    local dir topic
+    dir="$(kb_dir)"
+    topic="${1%.md}"
+    printf '%s/%s.md\n' "$dir" "$topic"
+}
+
+cmd_new() {
+    if [ "$#" -lt 1 ]; then
+        printf '%s: new needs <topic/path>\n' "$PROG" >&2
+        return 2
+    fi
+    local dir topic art idx today
+    dir="$(kb_dir)"
+    topic="${1%.md}"
+    art="$dir/$topic.md"
+    idx="$dir/$topic.md.index"
+    today="$(date -u +%Y-%m-%d)"
+
+    if [ -e "$art" ] || [ -e "$idx" ]; then
+        printf '%s: refusing to overwrite existing entry at %s (or its .index)\n' "$PROG" "$art" >&2
+        return 1
+    fi
+    mkdir -p "$(dirname "$art")" || {
+        printf '%s: cannot create parent dir for %s\n' "$PROG" "$art" >&2
+        return 1
+    }
+
+    cat > "$art" <<'EOF'
+---
+sources:
+  - title: ""
+    url: ""
+---
+
+#
+
+## Summary
+
+## Key Findings
+
+-
+
+## Details
+
+## See Also
+
+EOF
+
+    cat > "$idx" <<EOF
+title: ""
+last_modified: "$today"
+tags: []
+summary: >
+
+triggers:
+  - ""
+sources:
+  - ""
+related:
+  -
+EOF
+
+    printf '%s\n%s\n' "$art" "$idx"
+}
+
+cmd_help() {
+    # Print the leading comment block (lines 2..first blank), stripping `# `.
+    sed -n '2,/^$/p' "$0" | sed 's/^#\{1,\} \{0,1\}//'
+}
+
+main() {
+    local sub="${1:-help}"
+    if [ "$#" -gt 0 ]; then shift; fi
+    case "$sub" in
+        where)              cmd_where "$@" ;;
+        ls|list)            cmd_ls "$@" ;;
+        grep|search)        cmd_grep "$@" ;;
+        new)                cmd_new "$@" ;;
+        path)               cmd_path "$@" ;;
+        help|-h|--help)     cmd_help ;;
+        *)
+            printf '%s: unknown subcommand: %s (try `bash %s help`)\n' "$PROG" "$sub" "$0" >&2
+            return 2
+            ;;
+    esac
+}
+
+main "$@"
