@@ -22,8 +22,7 @@ When scope is `branch`:
 
 1. Identify the merge base between the current branch and `main`/`master` (`git merge-base HEAD main` or equivalent).
 2. Collect the set of files modified in commits since the merge base **and** any staged but uncommitted changes (`git diff --name-only <merge-base>...HEAD` plus `git diff --name-only --cached`).
-3. These files are the **primary review targets**. Each review agent should focus its analysis on them.
-4. Agents should also consider the **immediate blast radius** of those changes: callers, call sites, interfaces, and types that directly depend on or are depended upon by the changed code. This surrounding context should be read and understood, but findings should only be reported when the changed code introduces or exposes a problem in that surrounding context -- do not report pre-existing issues in unchanged code.
+3. Review the changes themselves *and* their immediate blast radius -- code that directly interacts with or is affected by the change. A bug introduced in `foo.go` may only manifest at a call site in `bar.go`; reviewing the diff in isolation will miss it. Read the surrounding code that directly depends on or is depended upon by the changed code, but only report findings where the change introduced or exposed the issue. Pre-existing problems in unchanged code are out of scope unless the change made them newly reachable or relevant.
 
 ## Execution Steps
 
@@ -34,19 +33,40 @@ Before spawning agents, quickly determine:
 - Primary language(s) and framework(s) (check file extensions, build files, config files)
 - Project structure (monorepo, single package, library vs application)
 - Available tooling (linters, formatters, test runners -- check Makefile, package.json, pyproject.toml, Cargo.toml, etc.)
-- Existing style conventions (check for .editorconfig, lint configs, CLAUDE.md guidelines)
-- **Current branch and merge base** (when scope is `branch`)
-- **Changed file list** (when scope is `branch`)
+- **Current branch, merge base, and changed file list** (when scope is `branch`)
 
-This context -- including the resolved scope and file list when applicable -- is passed to each sub-agent so they can tailor their analysis.
+### 2. Build the Agent Brief
 
-### 2. Spawn Parallel Review Agents
+Each subagent gets a compact brief containing only what the parent has computed and the agent doesn't already have access to. Do **not** restate what's already in CLAUDE.md, AGENTS.md, .editorconfig, or lint configs -- agents are expected to read those themselves as part of their review, and re-stating them just burns tokens and risks drift between the brief and the source.
 
-Launch the following sub-agents **in parallel** using the Task tool with `subagent_type=code-quality-guardian`. Each agent should be given the detected project context and scope.
+Brief format:
 
-#### Agent 1: Logical Correctness
+```
+- Review focus: <Correctness | Maintainability | Domain Expertise>
+- Scope: <all | branch>
+- Targets: <changed file list when branch scope; "project-wide for the relevant category" when all>
+- Branch context (when scope=branch): branch=<name>, base=<merge-base>
+```
 
-Review code and algorithms for logical soundness:
+### 3. Spawn Parallel Review Agents
+
+Launch the following subagents **in parallel** using the Task tool. Each agent must:
+
+- Reference specific files and line numbers for every finding
+- Rate each finding as **high**, **medium**, or **low** priority
+- Keep findings concise -- one to two sentences per issue
+- Classify each finding as either **actionable** or **informational** (defined below)
+- Read CLAUDE.md / AGENTS.md / lint configs themselves; conventions documented there override general best practices
+
+**Actionable**: The code should change. Covers bugs, logical errors, correctness issues, meaningful improvements, and anything with a clear corrective step -- regardless of priority.
+
+**Informational**: The code is acceptable as-is, but the finding is worth knowing. This includes architectural tradeoffs, deferred design debt, known limitations, cross-cutting patterns that explain non-obvious behavior, and systemic issues that have no single fix. Do not use this classification to soften a real bug or avoid a hard conversation -- if something should be fixed, it is actionable.
+
+#### Agent 1: Correctness (`subagent_type=code-quality-guardian`)
+
+Review whether the code -- and the tests that validate it -- actually do what they claim. Logic and tests are reviewed together because tautological tests typically only become visible alongside the implementation they're supposed to exercise, and a real defect is often easier to spot when you can also see how the test suite *fails* to catch it.
+
+Code logic:
 - Off-by-one errors, boundary conditions, incorrect comparisons
 - Race conditions, concurrency issues, unsafe shared state
 - Incorrect or incomplete control flow (missing cases, unreachable branches, fallthrough bugs)
@@ -54,19 +74,7 @@ Review code and algorithms for logical soundness:
 - Assumptions that may not hold (nil/null dereferences, unchecked casts, implicit ordering)
 - Resource leaks (unclosed handles, missing cleanup, deferred operations in wrong scope)
 
-#### Agent 2: Simplification and Readability
-
-Review for opportunities to reduce complexity and improve maintainability:
-- Dead code, unused variables, unreachable branches, unnecessary imports
-- Over-engineering -- abstractions that serve no purpose, premature generalization
-- Code that could be simplified (redundant conditions, convoluted logic, unnecessary indirection)
-- Long functions or deeply nested logic that should be broken up
-- Copy-pasted code that should be consolidated
-- Misleading or stale comments that contradict the code they describe
-
-#### Agent 3: Test Correctness
-
-Review tests for whether they actually validate what they claim to:
+Test correctness:
 - Tests that pass regardless of implementation (tautological assertions, assertions on mocks instead of behavior)
 - Tests whose names/descriptions don't match what they actually verify
 - Missing assertions -- tests that exercise code but never check results
@@ -74,9 +82,21 @@ Review tests for whether they actually validate what they claim to:
 - Incorrect test setup that masks bugs (wrong mock behavior, overly permissive matchers)
 - Flaky patterns (time-dependent, order-dependent, shared mutable state between tests)
 
-#### Agent 4: Naming, Consistency, and Idioms
+When a code defect and a test gap are linked -- e.g., a tautological test masks a real bug -- report them as a single connected finding rather than two separate ones; the relationship is the most important thing the reader needs to see.
 
-Review for adherence to language idioms, project conventions, and internal consistency:
+#### Agent 2: Maintainability (`subagent_type=code-quality-guardian`)
+
+Review whether the code is well-structured, well-named, and idiomatic. Simplification and naming/idioms are reviewed together because they're the same concern at different granularities -- a misleading name *is* a readability issue, and non-idiomatic code is often unnecessary complexity dressed up in a different vocabulary.
+
+Simplification and readability:
+- Dead code, unused variables, unreachable branches, unnecessary imports
+- Over-engineering -- abstractions that serve no purpose, premature generalization
+- Code that could be simplified (redundant conditions, convoluted logic, unnecessary indirection)
+- Long functions or deeply nested logic that should be broken up
+- Copy-pasted code that should be consolidated
+- Misleading or stale comments that contradict the code they describe
+
+Naming, consistency, and idioms:
 - Naming that violates language conventions (casing, abbreviations, exported vs unexported)
 - Inconsistent patterns -- similar things done differently across the codebase
 - Non-idiomatic code that has a cleaner standard-library or language-native equivalent
@@ -84,9 +104,9 @@ Review for adherence to language idioms, project conventions, and internal consi
 - Structural inconsistencies (file organization, package layout, module boundaries)
 - Public API surface clarity -- would a consumer understand how to use this correctly?
 
-#### Agent 5: Domain Expertise
+#### Agent 3: Domain Expertise (`subagent_type=general-purpose`)
 
-This agent reviews the project through the lens of a subject matter expert in the technologies the project works with. It must first research what those technologies are, then evaluate whether the project uses them correctly.
+This agent reviews the project through the lens of a subject matter expert in the technologies the project works with. It must first research what those technologies are, then evaluate whether the project uses them correctly. Uses `general-purpose` (not `code-quality-guardian`) because it needs web search and documentation tools that the guardian does not have.
 
 Steps:
 1. **Identify the domain.** Read project documentation (README, CLAUDE.md, doc comments, module description) to understand what the project does and what external tools, protocols, APIs, or systems it interacts with.
@@ -103,23 +123,19 @@ Examples of what this looks like in practice:
 - A Prometheus tool: Is it using the HTTP API correctly? Are PromQL queries well-formed? Does it handle staleness, sample limits, and error responses properly?
 - A Kubernetes operator: Does it handle finalizers correctly? Are watch/informer patterns used properly? Does it respect API conventions?
 
-This agent should use `subagent_type=general-purpose` (not code-quality-guardian) since it needs access to web search and documentation tools for research.
+### 4. Consolidate and Reconcile Findings
 
-Each agent must:
-- Reference specific files and line numbers for every finding
-- Rate each finding as **high**, **medium**, or **low** priority
-- Keep findings concise -- one to two sentences per issue
-- Classify each finding as either **actionable** or **informational** (defined below)
+**Deduplicate findings across agents first.** When two findings reference the same file:line range and root cause, merge them into a single entry tagged with both categories. For example, "deeply nested loop with no test coverage" might surface from both Correctness (logic hard to verify) and Maintainability (should be simplified) -- merge into one entry tagged `[Correctness, Maintainability]`. The goal is one finding per real issue, not one per agent. Do this before counting anything, so persistence decisions and stats reflect distinct issues.
 
-**Actionable**: The code should change. Covers bugs, logical errors, correctness issues, meaningful improvements, and anything with a clear corrective step -- regardless of priority.
+**Then decide whether the informational notes warrant persistence.** The full criteria, KB path resolution from the git remote, file template, and reconciliation rules (add/remove/update) live in `references/persistent-notes.md` -- read it when there are informational notes that look durable.
 
-**Informational**: The code is acceptable as-is, but the finding is worth knowing. This includes: architectural tradeoffs, deferred design debt, known limitations, cross-cutting patterns that explain non-obvious behavior, and systemic issues that have no single fix. Do not use this classification to soften a real bug or avoid a hard conversation -- if something should be fixed, it is actionable.
+Short version: if there are fewer than ~5 distinct informational notes and each could naturally live as an inline code comment in the file it concerns, skip persistence and inline them in the summary instead. Otherwise, follow the reference doc to write or update `$AGENTS_KB_DIR/projects/<forge>/<owner>/<repo>/quality-notes.md`.
 
-### 3. Compile Results
+Notes are persisted to the knowledge base, **not** committed to the repo. This keeps them project-scoped, durable across reviews, and out of the working tree.
 
-After all agents complete, compile their findings. **Check whether a `QUALITY.md` exists in the project root before formatting output** -- this controls how informational notes are presented (see Step 4).
+### 5. Present the Summary
 
-When `QUALITY.md` does **not** exist, use this full format:
+Output format when informational notes are inlined (no KB persistence):
 
 ```
 ## Quality Review Summary
@@ -144,74 +160,27 @@ When `QUALITY.md` does **not** exist, use this full format:
 ### Stats
 - Actionable findings: N (High: N, Medium: N, Low: N)
 - Informational notes: N
-- By category: Correctness (N), Simplification (N), Tests (N), Naming/Idioms (N), Domain (N)
+- By category: Correctness (N), Maintainability (N), Domain (N)
 ```
 
-When `QUALITY.md` **exists**, omit the Informational Notes section from the output and replace it with a single status line after Stats (see Step 4 for how to produce it):
+When informational notes were persisted to the KB, omit the `### Informational Notes` section and replace its line in Stats with:
 
 ```
-## Quality Review Summary
-
-**Scope**: <all | branch (N files from branch `branch-name`)>
-**Project**: <detected language/framework>
-
-### Actionable Findings
-
-#### High Priority
-- [Category] file:line - description
-
-#### Medium Priority
-- [Category] file:line - description
-
-#### Low Priority
-- [Category] file:line - description
-
-### Stats
-- Actionable findings: N (High: N, Medium: N, Low: N)
-- Informational notes: N (tracked in QUALITY.md -- M added, P removed, Q updated)
-- By category: Correctness (N), Simplification (N), Tests (N), Naming/Idioms (N), Domain (N)
+- Informational notes: N (tracked in KB -- M added, P removed, Q updated)
 ```
 
-In both cases: if there are no actionable findings, state that explicitly rather than leaving the section empty. If there are no informational notes, omit that section (or zero out the counts in the stats line).
+If there are no actionable findings, state that explicitly rather than leaving the section empty. If there are no informational notes at all, omit that section.
 
-### 4. Reconcile or Create QUALITY.md
-
-Before presenting the summary to the user, handle informational notes as follows based on whether `QUALITY.md` already exists.
-
-#### If QUALITY.md exists
-
-Reconcile the informational notes from this review against the existing document:
-
-- **Add** findings not already covered by an existing entry. A finding is "already covered" if an existing entry describes the same issue at the same or nearby location -- do not add near-duplicates.
-- **Remove** entries that are no longer relevant. An entry is stale if the code it references has been changed in a way that resolves or invalidates the concern (e.g., the code was deleted, refactored, or the issue was fixed).
-- **Update** entries where the nature or location of the issue has shifted -- e.g., the same concern now manifests differently or has moved to a different file.
-
-After reconciling, update `QUALITY.md` in place. Do not show the informational notes inline in the review summary. Instead, include only the stats line described in Step 3: `N added, P removed, Q updated`. Tell the user to review the document for informational context. Keep the review output focused on actionable findings.
-
-#### If QUALITY.md does not exist
-
-Evaluate whether the informational notes warrant creating a persistent `QUALITY.md`. A dedicated document is only appropriate when **all** of the following are true:
-
-1. There are **5 or more** informational notes, **or** the notes describe systemic, cross-cutting issues that span multiple files.
-2. The notes cannot be adequately captured as inline code comments -- i.e., they lack a single natural home in the code, describe project-wide patterns, or represent architectural context that would be lost or fragmented if split across comment sites.
-
-If these conditions are met, offer to create the document after presenting the summary. Do not create it automatically. Describe what it would contain and why inline comments are insufficient for this particular content.
-
-If a `QUALITY.md` is created:
-- It should group notes by theme (e.g., Architecture, Design Debt, Known Limitations, Testing Gaps).
-- Each entry should include: location reference, a concise description, and why it is deferred rather than fixed.
-- After creating the file, check for a `CLAUDE.md` in the project root. If one exists, add a brief reference to `QUALITY.md` so future sessions are aware of it. If none exists, note this to the user but do not create one unprompted.
-
-### 5. Present for Action
+### 6. Act on Findings
 
 After presenting the summary, ask the user which findings (if any) they want to address. Do not proceed with fixes until directed.
 
-When the user selects findings to fix, delegate each fix to the appropriate specialized sub-agent (implementation, test writing, etc.) and commit atomically per fix.
+When the user selects findings to fix, delegate each fix to the appropriate specialized subagent (implementation, test writing, etc.) and commit atomically per fix.
 
 ## Notes
 
 - Adapt review criteria to the language and ecosystem. A Go project has different conventions than a Python or TypeScript project. Let the agents use their judgment.
-- If the project has a CLAUDE.md or similar configuration that specifies conventions, those take precedence over general best practices.
+- If the project has a CLAUDE.md, AGENTS.md, or similar configuration that specifies conventions, those take precedence over general best practices.
 - If the project has existing linter configurations, note violations of those specifically.
 - Do not report style issues that are clearly intentional project conventions.
 - Focus on substantive issues over nitpicks. A missing docstring on an internal helper is low priority; a silently discarded error in a public API is high priority.
