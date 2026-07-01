@@ -32,10 +32,13 @@
       "Bash(make:*)",
       "Bash(tail:*)",
       "Bash(wc:*)",
+      "Bash(bash ~/.claude/skills/knowledge-base/bin/kb:*)",
       "WebFetch(domain:api.github.com)",
+      "WebFetch(domain:docs.anthropic.com)",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "WebSearch",
+      "Skill(update-config)",
       "mcp__context7__*",
       "mcp__prometheus__*"
     ],
@@ -46,29 +49,7 @@
       "Bash(git stash *)",
       "Bash(git push *)"
     ],
-    "defaultMode": "default"
-  },
-  "hooks": {
-    "Notification": [
-      {
-        "matcher": "permission_prompt",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "notify-send -u normal -a 'Claude Code' 'Permission Needed' \"$(cat | jq -r '.message // \"Claude Code needs permission to proceed\"')\" && printf '\\a' > \"$(tmux display-message -p -t \"${TMUX_PANE}\" '#{pane_tty}')\""
-          }
-        ]
-      },
-      {
-        "matcher": "idle_prompt",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "notify-send -u normal -a 'Claude Code' 'Waiting for Input' \"$(cat | jq -r '.message // \"Claude Code is waiting for your input\"')\" && printf '\\a' > \"$(tmux display-message -p -t \"${TMUX_PANE}\" '#{pane_tty}')\""
-          }
-        ]
-      }
-    ]
+    "defaultMode": "auto"
   },
   "statusLine": {
     "type": "command",
@@ -79,5 +60,12 @@
     "frontend-design@claude-plugins-official": true,
     "skill-creator@claude-plugins-official": true,
     "ralph-loop@claude-plugins-official": true
-  }
+  },
+  "effortLevel": "xhigh",
+  "advisorModel": "opus",
+  "preferredNotifChannel": "ghostty",
+  "showTurnDuration": true,
+  "terminalProgressBarEnabled": true,
+  "skipAutoPermissionPrompt": true,
+  "remoteControlAtStartup": true
 }
