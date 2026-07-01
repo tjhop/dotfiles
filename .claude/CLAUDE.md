@@ -79,6 +79,7 @@ type(scope): brief summary
 Examples: `feat(api): make timeout configurable`, `fix(manager): initialize executedDirectives map`
 
 ### Commit Metadata
+- Every commit MUST be made with `git commit --signoff` (`-s`) to add a `Signed-off-by` trailer (Developer Certificate of Origin).
 - Every commit MUST include an `Assisted-by` trailer identifying the AI agent and model (per the [Linux kernel coding assistants policy](https://github.com/torvalds/linux/blob/master/Documentation/process/coding-assistants.rst)). Format: `Assisted-by: Claude Code:claude-opus-4-6 <noreply@anthropic.com>`
 - Every commit MUST include a description body (markdown, no emoji): brief context of what changed and why
 
