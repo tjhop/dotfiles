@@ -110,6 +110,7 @@ let g:NERDTrimTrailingWhitespace = 1
 " --------------------
 nnoremap <leader>mps :MarkdownPreview<CR>
 nnoremap <leader>mpe :MarkdownPreviewStop<CR>
+" let g:mkdp_browser = 'tmux split-window -v carbonyl'
 
 " Vim Airline configs
 " -------------------
