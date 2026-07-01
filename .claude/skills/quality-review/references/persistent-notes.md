@@ -16,17 +16,13 @@ If these conditions are not met, present the informational notes inline in the r
 
 ## Where notes live
 
-Path: `$AGENTS_KB_DIR/projects/<forge>/<owner>/<repo>/quality-notes.md`
+Quality notes are project-scoped knowledge, so they live in the project subtree of the knowledge base under the file name `quality-notes.md`. Resolve the path and read/write through the `knowledge-base` skill, which owns the KB conventions (KB-root resolution, project-ID derivation from the git remote, the no-remote fallback). Don't re-derive the path by hand here -- ask the helper:
 
-- `$AGENTS_KB_DIR` defaults to `~/.knowledge/` if unset.
-- `<forge>/<owner>/<repo>` is derived from the project's `origin` git remote:
-  - `git@github.com:foo/bar.git` → `github.com/foo/bar`
-  - `https://github.com/foo/bar.git` → `github.com/foo/bar`
-  - `https://gitlab.com/group/proj` → `gitlab.com/group/proj`
-  - Self-hosted forges use the same scheme: `https://git.example.com/foo/bar` → `git.example.com/foo/bar`
-- For repos without a configured remote, fall back to `local/<basename-of-repo-root>` and tell the user this is happening; the path won't sync to other machines but will persist locally.
+```sh
+bash ~/.claude/skills/knowledge-base/bin/kb path projects/<project-id>/quality-notes.md
+```
 
-If the `knowledge-base` skill is available in the session, prefer using it to read and write the file rather than touching the path directly -- it ensures the conventions stay in sync. Otherwise, just read and write the markdown file.
+Use the skill's documented project-path derivation for `<project-id>`; the helper prints the absolute path to read or write. Letting the skill own derivation keeps quality notes in sync with every other kind of project knowledge and avoids drift between two copies of the same path logic.
 
 ## File structure
 
