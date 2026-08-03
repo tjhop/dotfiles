@@ -32,11 +32,15 @@
       "Bash(make:*)",
       "Bash(tail:*)",
       "Bash(wc:*)",
+      "Bash(yadm list:*)",
+      "Bash(yadm submodule:*)",
       "Bash(bash ~/.claude/skills/knowledge-base/bin/kb:*)",
       "WebFetch(domain:api.github.com)",
       "WebFetch(domain:docs.anthropic.com)",
+      "WebFetch(domain:ghostty.org)",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:ts.sdk.modelcontextprotocol.io)",
       "WebSearch",
       "Skill(update-config)",
       "mcp__context7__*",
@@ -51,6 +55,7 @@
     ],
     "defaultMode": "auto"
   },
+  "model": "fable",
   "statusLine": {
     "type": "command",
     "command": "bash /home/tjhop/.claude/statusline-command.sh"
@@ -66,6 +71,8 @@
   "preferredNotifChannel": "ghostty",
   "showTurnDuration": true,
   "terminalProgressBarEnabled": true,
-  "skipAutoPermissionPrompt": true,
-  "remoteControlAtStartup": true
+  "remoteControlAtStartup": true,
+  "inputNeededNotifEnabled": true,
+  "agentPushNotifEnabled": true,
+  "skipAutoPermissionPrompt": true
 }
