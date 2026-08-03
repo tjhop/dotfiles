@@ -1,0 +1,241 @@
+#!/usr/bin/env bash
+#
+# caffeinate - keep the local machine awake on demand, macOS-style.
+#
+# Mechanism: takes a logind "idle" (plus "sleep") block inhibitor via
+# systemd-inhibit.
+
+set -euo pipefail
+
+readonly VERSION='caffeinate 1.0 (systemd-inhibit wrapper)'
+readonly UNIT='caffeinate'
+readonly WHO='caffeinate'
+
+die() { printf 'caffeinate: %s\n' "$*" >&2; exit 2; }
+
+# Is anything at all currently holding logind's "idle" block?
+idle_blocked() {
+    local b
+    b=$(busctl --system get-property org.freedesktop.login1 /org/freedesktop/login1 \
+          org.freedesktop.login1.Manager BlockInhibited 2>/dev/null) || return 1
+    [[ ${b//\"/} == *idle* ]]
+}
+
+# Is *this specific PID* holding a block inhibitor that covers idle? Used to
+# confirm a background hold really landed -- `systemd-run` returns as soon as
+# the unit starts, which is before systemd-inhibit has registered with logind,
+# so "unit is active" on its own is not evidence that anything is inhibited.
+holds_idle_block() {
+    local pid="$1" out
+    out=$(busctl --system --json=short call org.freedesktop.login1 /org/freedesktop/login1 \
+            org.freedesktop.login1.Manager ListInhibitors 2>/dev/null) || return 1
+    if command -v jq >/dev/null 2>&1; then
+        # tuple is (what, who, why, mode, uid, pid)
+        jq -e --argjson pid "$pid" \
+            '.data[0][] | select(.[5] == $pid and .[3] == "block"
+                                 and ((.[0] | split(":")) | index("idle")))' \
+            >/dev/null 2>&1 <<<"$out"
+    else
+        idle_blocked
+    fi
+}
+
+usage() {
+    cat <<'EOF'
+caffeinate - keep this machine awake on demand
+
+USAGE
+    caffeinate                     hold awake until Ctrl-C
+    caffeinate -c CMD [ARGS...]    hold awake while CMD runs (exit code propagates)
+    caffeinate -t SECONDS          hold awake for SECONDS
+    caffeinate -w PID              hold awake until PID exits
+
+    caffeinate on [-t SECONDS]     hold awake in the background, survives this shell
+    caffeinate off                 release the background hold
+    caffeinate toggle              flip the background hold
+    caffeinate status              report current state (exit 0 if on, 1 if off)
+
+OPTIONS
+    -c, --command CMD...    run CMD and hold awake for its lifetime. Everything
+                            after -c is the command, so its own flags need no
+                            quoting or `--`. Must come last.
+    -t, --timeout SECONDS   duration of the hold
+    -w, --wait PID          hold until the given process exits
+        --lid               also block suspend-on-lid-close (NOT the default;
+                            plain caffeinate lets a closed lid suspend, same as
+                            macOS and same as leaving a video playing)
+        --why TEXT          reason shown in `systemd-inhibit --list`
+    -h, --help              this message
+    -V, --version           version
+
+EXAMPLES
+    caffeinate -c make -j16          stay awake for a long build (-j16 goes to make)
+    caffeinate -t 3600               stay awake for an hour
+    caffeinate -w $(pgrep -f rsync)  stay awake until the transfer finishes
+    caffeinate on                    stay awake indefinitely (bind this to a key)
+    caffeinate --lid -c make -j16    ...and ignore the lid while it runs
+
+VERIFYING
+    systemd-inhibit --list         shows every inhibitor currently held
+
+    If a hold ever fails to take, the failure mode is a silent suspend, since
+    logind's own IdleAction is "ignore" here and hypridle is the sole actor.
+    `caffeinate status` is the quick check.
+EOF
+}
+
+main() {
+    local mode='' secs='' pid='' lid=0 why='user requested stay-awake'
+    local -a cmd=()
+
+    while (( $# )); do
+        case "$1" in
+            -t|--timeout) secs="${2-}"; [[ -n $secs ]] || die '-t requires SECONDS'; shift 2 ;;
+            -w|--wait)    pid="${2-}";  [[ -n $pid  ]] || die '-w requires a PID';   shift 2 ;;
+            --why)        why="${2-}";  [[ -n $why  ]] || die '--why requires TEXT'; shift 2 ;;
+            --lid)        lid=1; shift ;;
+            -h|--help)    usage; return 0 ;;
+            -V|--version) printf '%s\n' "$VERSION"; return 0 ;;
+            -c|--command)
+                # Everything after -c belongs to the command, so its own flags
+                # pass through untouched and no `--` separator is needed.
+                [[ -n $mode ]] && die "-c cannot be combined with '$mode'"
+                shift
+                (( $# )) || die '-c requires a command'
+                cmd=("$@"); mode='cmd'
+                break ;;
+            on|off|toggle|status)
+                [[ -n $mode ]] && die "unexpected argument: $1"
+                mode="$1"; shift ;;
+            -*) die "unknown option: $1" ;;
+            *)  [[ -n $mode ]] && die "'$mode' does not take arguments"
+                die "unexpected argument: $1 (to run a command, use: caffeinate -c $*)" ;;
+        esac
+    done
+
+    [[ -n $secs && ! $secs =~ ^[0-9]+$ ]] && die "-t wants whole seconds, got: $secs"
+    [[ -n $pid  && ! $pid  =~ ^[0-9]+$ ]] && die "-w wants a PID, got: $pid"
+    [[ -n $secs && -n $pid ]] && die 'use -t or -w, not both'
+
+    # A wrapped command already defines the hold's duration; silently ignoring
+    # an explicit -t/-w alongside it would be the wrong kind of surprise.
+    [[ $mode == cmd && ( -n $secs || -n $pid ) ]] && die 'use -t/-w or -c, not both'
+
+    [[ -n $mode ]] || mode='hold'
+
+    local what='idle:sleep'
+    (( lid )) && what+=':handle-lid-switch'
+
+    case "$mode" in
+        status) do_status ;;
+        off)    do_off ;;
+        on)     do_on "$what" "$why" "$secs" ;;
+        toggle)
+            if systemctl --user is-active --quiet "$UNIT"; then
+                do_off
+            else
+                do_on "$what" "$why" "$secs"
+            fi ;;
+        hold|cmd)
+            local -a holder
+            if [[ $mode == cmd ]]; then
+                holder=("${cmd[@]}")
+            elif [[ -n $pid ]]; then
+                kill -0 "$pid" 2>/dev/null || die "no such process: $pid"
+                # blocks until PID exits, without polling and without being its parent
+                holder=(tail --pid="$pid" -f /dev/null)
+            elif [[ -n $secs ]]; then
+                holder=(sleep "$secs")
+            else
+                holder=(sleep infinity)
+            fi
+
+            if [[ $mode == hold && -z $secs && -z $pid ]]; then
+                printf 'caffeinate: holding awake (%s) -- Ctrl-C to release\n' "$what" >&2
+            else
+                printf 'caffeinate: holding awake (%s)\n' "$what" >&2
+            fi
+            # exec so signals and the exit status pass straight through
+            exec systemd-inhibit --what="$what" --who="$WHO" --why="$why" -- "${holder[@]}"
+            ;;
+    esac
+}
+
+do_on() {
+    local what="$1" why="$2" secs="$3"
+
+    if systemctl --user is-active --quiet "$UNIT"; then
+        printf 'caffeinate: already on\n' >&2
+        return 0
+    fi
+    # clear any dead unit of the same name so --unit= is free
+    systemctl --user reset-failed "$UNIT" &>/dev/null || true
+
+    local -a props=()
+    [[ -n $secs ]] && props+=(--property=RuntimeMaxSec="$secs")
+
+    systemd-run --user --unit="$UNIT" --quiet --collect "${props[@]}" \
+        systemd-inhibit --what="$what" --who="$WHO" --why="$why" -- sleep infinity
+
+    # Confirm the inhibitor actually registered. Without this, `on` can report
+    # success while nothing is held, and the failure mode is a silent suspend.
+    local i mp='' ok=0
+    for (( i = 0; i < 60; i++ )); do
+        mp=$(systemctl --user show "$UNIT" -p MainPID --value 2>/dev/null || true)
+        if [[ -n $mp && $mp != 0 ]] && holds_idle_block "$mp"; then ok=1; break; fi
+        sleep 0.05
+    done
+    if (( ! ok )); then
+        systemctl --user stop "$UNIT" &>/dev/null || true
+        systemctl --user reset-failed "$UNIT" &>/dev/null || true
+        die 'background hold failed to register with logind -- nothing is inhibited'
+    fi
+
+    if [[ -n $secs ]]; then
+        printf 'caffeinate: on (%s) for %ss\n' "$what" "$secs" >&2
+    else
+        printf 'caffeinate: on (%s) until `caffeinate off`\n' "$what" >&2
+    fi
+}
+
+do_off() {
+    systemctl --user stop "$UNIT" &>/dev/null || true
+    systemctl --user reset-failed "$UNIT" &>/dev/null || true
+    printf 'caffeinate: off\n' >&2
+}
+
+do_status() {
+    local rc=0 mp='' blocked
+    if systemctl --user is-active --quiet "$UNIT"; then
+        mp=$(systemctl --user show "$UNIT" -p MainPID --value 2>/dev/null || true)
+        if [[ -n $mp && $mp != 0 ]] && holds_idle_block "$mp"; then
+            printf 'background hold : ON\n'
+        else
+            printf 'background hold : BROKEN (unit running, nothing inhibited) -- run `caffeinate off`\n'
+            rc=1
+        fi
+    else
+        printf 'background hold : off\n'
+        rc=1
+    fi
+
+    # The question that actually matters, regardless of who is holding it.
+    if idle_blocked; then
+        printf 'idle blocked    : yes -- this machine will not lock or suspend on idle\n'
+    else
+        printf 'idle blocked    : no  -- normal lock/suspend behaviour applies (per hypridle.conf)\n'
+    fi
+
+    blocked=$(busctl --system get-property org.freedesktop.login1 /org/freedesktop/login1 \
+                org.freedesktop.login1.Manager BlockInhibited 2>/dev/null || true)
+    blocked=${blocked#s }
+    blocked=${blocked//\"/}
+    printf 'logind blocking : %s\n' "${blocked:-<nothing>}"
+
+    printf '\ninhibitors held now:\n'
+    systemd-inhibit --list 2>/dev/null | awk 'NR==1 || /idle/'
+
+    return "$rc"
+}
+
+main "$@"
