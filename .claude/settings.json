@@ -14,6 +14,7 @@
       "Bash(git diff:*)",
       "Bash(git log:*)",
       "Bash(git ls-remote:*)",
+      "Bash(git rebase:*)",
       "Bash(git status:*)",
       "Bash(git submodule:*)",
       "Bash(git rev-parse:*)",
@@ -46,16 +47,20 @@
       "mcp__context7__*",
       "mcp__prometheus__*"
     ],
+    "ask": [
+      "Bash(git push:*)"
+    ],
     "deny": [
       "Bash(go build *)",
       "Bash(git reset *)",
-      "Bash(git rebase *)",
-      "Bash(git stash *)",
-      "Bash(git push *)"
+      "Bash(git stash *)"
     ],
     "defaultMode": "auto"
   },
   "model": "fable",
+  "worktree": {
+    "baseRef": "fresh"
+  },
   "statusLine": {
     "type": "command",
     "command": "bash /home/tjhop/.claude/statusline-command.sh"
@@ -68,10 +73,15 @@
   },
   "effortLevel": "xhigh",
   "advisorModel": "opus",
+  "tui": "fullscreen",
+  "editorMode": "normal",
+  "verbose": false,
   "preferredNotifChannel": "ghostty",
+  "fileCheckpointingEnabled": false,
   "showTurnDuration": true,
   "terminalProgressBarEnabled": true,
   "remoteControlAtStartup": true,
+  "crossSessionInbound": "accept",
   "inputNeededNotifEnabled": true,
   "agentPushNotifEnabled": true,
   "skipAutoPermissionPrompt": true

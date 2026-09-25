@@ -70,8 +70,9 @@ Never push to any branch or remote unless explicitly asked.
 Never change the working branch unless explicitly asked. If requested changes don't appear related to the working branch, skip those parts and ask first.
 
 ### Append-Only History
-Treat git as append-only. You may stage and commit, but never revise history:
-- NEVER use `git commit --amend`, `git rebase`, `git reset`, `git stash`, or any history-rewriting commands
+Treat git as append-only. You may stage and commit, but never revise history on your own initiative:
+- NEVER use `git commit --amend`, `git reset`, `git stash`, or any other history-rewriting commands
+- `git rebase` is allowed ONLY when I explicitly ask for it (squashing, reordering, or folding a branch). Never rebase unprompted
 - If a change needs correction, create a NEW commit
 
 ### Conventional Commits
