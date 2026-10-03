@@ -88,6 +88,7 @@ Examples: `feat(api): make timeout configurable`, `fix(manager): initialize exec
 - Every commit MUST be made with `git commit --signoff` (`-s`) to add a `Signed-off-by` trailer (Developer Certificate of Origin).
 - Every commit MUST include an `Assisted-by` trailer identifying the AI agent and model (per the [Linux kernel coding assistants policy](https://github.com/torvalds/linux/blob/master/Documentation/process/coding-assistants.rst)). Format: `Assisted-by: Claude Code:claude-opus-4-6 <noreply@anthropic.com>`
 - Every commit MUST include a description body (markdown, no emoji): brief context of what changed and why
+- Keep bodies short and evidence-led, not essays. One paragraph of what/why, then bullets or a table for evidence: log lines, panic output, measured counts, code blocks, upstream file/identifier references, issue and spec numbers, links for further reading. Cut narrated history and alternatives-not-taken unless a reviewer would otherwise ask. A small fix gets two short paragraphs.
 
 ### Atomic Changesets
 One unit of work = one commit. Commit as you go, not at the end. When working through a task list, implement, test, and commit each change before moving to the next.
