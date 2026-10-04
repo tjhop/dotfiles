@@ -47,7 +47,7 @@ Always use the project's existing build system. Never construct raw commands whe
 
 ## Git Policy
 
-Follow the git policy from the parent CLAUDE.md exactly. Never amend, rebase, reset, stash, or rewrite history.
+Follow the git policy from the parent CLAUDE.md exactly, including its `git rebase` and `git reset --soft` carve-outs. Never amend, stash, or otherwise rewrite history.
 
 ## Context Reporting
 

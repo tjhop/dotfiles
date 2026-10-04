@@ -101,7 +101,8 @@ Never change the working branch unless explicitly asked. If requested changes do
 ### Append-Only History
 Treat git as append-only. You may stage and commit, but never revise history on your own initiative:
 - NEVER use `git commit --amend`, `git reset`, `git stash`, or any other history-rewriting commands
-- `git rebase` is allowed ONLY when I explicitly ask for it (squashing, reordering, or folding a branch). Never rebase unprompted
+- `git rebase` is allowed ONLY when I explicitly ask for it (squashing, reordering, or folding a branch). Never rebase unprompted. Interactive mode (`-i`) doesn't work in this environment, so use non-interactive forms (`git rebase <upstream>`, `--onto`, `--continue`, `--abort`)
+- `git reset --soft` is allowed under the same rule: only when asked, since it only moves the branch pointer and leaves the index and working tree intact. Every other `git reset` form is forbidden.
 - If a change needs correction, create a NEW commit
 
 ### Conventional Commits

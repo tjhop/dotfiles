@@ -58,7 +58,7 @@ Adapt depth to change scope: minor fixes may only need lint+test; pre-PR needs t
 
 ## Git Policy
 
-Follow the git policy from the parent CLAUDE.md exactly. Never amend, rebase, reset, stash, or rewrite history.
+Follow the git policy from the parent CLAUDE.md exactly, including its `git rebase` and `git reset --soft` carve-outs. Never amend, stash, or otherwise rewrite history.
 
 ## Context Reporting
 
