@@ -117,6 +117,12 @@ Focus on the "why", not the "how". If you find yourself explaining how code work
 - `TODO (@tjhop)`: My personal notes. You may ask about them or offer to work on them. Never remove unless I directly ask.
 - `TODO (@claude)`: Our shared tasks. If encountered and relevant to current work, raise it for discussion. If asked to work on them, proceed.
 
+## Machine-Local Instructions
+
+Machine-specific instructions (org policies, hardware quirks, local paths) live in `~/.claude/CLAUDE.local.md`, which is not synced across machines. It is imported below; on machines without one, the import resolves to nothing.
+
+@CLAUDE.local.md
+
 ## Bug Reports
 
 When you believe you've identified a bug, always include:
