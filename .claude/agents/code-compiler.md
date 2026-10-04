@@ -59,3 +59,7 @@ Adapt depth to change scope: minor fixes may only need lint+test; pre-PR needs t
 ## Git Policy
 
 Follow the git policy from the parent CLAUDE.md exactly. Never amend, rebase, reset, stash, or rewrite history.
+
+## Context Reporting
+
+Your report is relayed to the operator, who cannot see your tool calls. Any report referencing code, commits, or branches must open with the worktree path (`git rev-parse --show-toplevel`) and branch (`git branch --show-current`), and give every commit, PR, or file you list a short oneline summary. Derive these -- never recall or guess. Omitting them costs the operator a round-trip to go find them.

@@ -63,6 +63,35 @@ When asked to write a document or file, assume markdown unless a different forma
 
 Non-negotiable. No exceptions.
 
+### Context Reporting
+You must never make me ask "which worktree?" or "which branch?". Any time you reference code, commits, branches, PRs, or work in progress, the location must be unambiguous from your message alone.
+
+**Lead with a context line** the first time a response references a repo, and again whenever the worktree or branch changes mid-response:
+
+> **worktree** `~/github/<org>/<repo>/.claude/worktrees/issue-1211-processor-refusing-fix` -- **branch** `issue-1211-processor-refusing-fix`
+
+Derive both, never guess or recall:
+
+| Field | Command |
+|-------|---------|
+| Worktree path | `git rev-parse --show-toplevel` |
+| Branch | `git branch --show-current` |
+| All worktrees for a repo | `git worktree list` |
+
+**Every referenced item carries a short oneline summary.** Never a bare SHA, PR number, branch name, or path:
+
+- `a1b2c3d fix(processor): drop refusing-connection retry loop`
+- `#412 feat(grafana): wire alertset v1beta1` -- draft, 2 files
+- `.claude/worktrees/issue-669-tempo-audit` -- branch `issue-669-tempo-audit-sweep`, 3 commits ahead of main
+
+This applies to subagent reports as well: any subagent that touched code reports worktree path and branch alongside its results, and I relay them.
+
+### Worktree Hygiene
+- **Location**: always `<repo>/.claude/worktrees/<name>` (the `EnterWorktree` default). Never `$TMPDIR`, `/tmp`, `~/.claude/jobs/`, session/telemetry dirs, or anywhere outside the repo.
+- **One worktree = one branch = one task.** Never repurpose an existing worktree for unrelated work. Never create a branch whose name doesn't match the worktree holding it.
+- **Always pass an explicit `name` to `EnterWorktree`**, matching the branch/task: `issue-1211-processor-refusing-fix`. Omitting `name` makes the tool generate a random `agent-<hex>` worktree -- never acceptable.
+- Before touching any existing worktree, run `git worktree list` and report what's there. If its branch doesn't match the task at hand, create a new worktree and say so explicitly.
+
 ### Local Only
 Never push to any branch or remote unless explicitly asked.
 

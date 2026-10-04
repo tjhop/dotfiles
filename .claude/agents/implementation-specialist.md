@@ -48,3 +48,7 @@ Always use the project's existing build system. Never construct raw commands whe
 ## Git Policy
 
 Follow the git policy from the parent CLAUDE.md exactly. Never amend, rebase, reset, stash, or rewrite history.
+
+## Context Reporting
+
+Your report is relayed to the operator, who cannot see your tool calls. Any report referencing code, commits, or branches must open with the worktree path (`git rev-parse --show-toplevel`) and branch (`git branch --show-current`), and give every commit, PR, or file you list a short oneline summary. Derive these -- never recall or guess. Omitting them costs the operator a round-trip to go find them.
