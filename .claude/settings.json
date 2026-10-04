@@ -98,6 +98,17 @@
           }
         ]
       }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "startup|resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/preflight.sh"
+          }
+        ]
+      }
     ]
   },
   "model": "fable",
