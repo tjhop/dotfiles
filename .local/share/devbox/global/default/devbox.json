@@ -18,7 +18,8 @@
     "gh@latest",
     "git@latest",
     "k9s@latest",
-    "kubectx@latest"
+    "kubectx@latest",
+    "stow@latest"
   ],
   "shell": {
     "init_hook": [
