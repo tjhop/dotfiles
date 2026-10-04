@@ -10,6 +10,7 @@ dir=$(echo "$input" | jq -r '.workspace.current_dir')
 model=$(echo "$input" | jq -r '.model.display_name')
 used=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
 transcript=$(echo "$input" | jq -r '.transcript_path // empty')
+effort=$(echo "$input" | jq -r '.effort.level // empty')
 
 # --- Git info ---
 git_info=""
@@ -29,6 +30,22 @@ fi
 ctx_info=""
 if [ -n "$used" ]; then
   ctx_info=$(printf '\033[33m[ctx: %s%%]\033[0m ' "$used")
+fi
+
+# --- Reasoning effort ---
+# Color shifts by intensity (cost/depth): gray -> green -> cyan -> yellow -> red.
+# Rendered attached to the model name, since effort is a per-run model attribute.
+effort_info=""
+if [ -n "$effort" ]; then
+  case "$effort" in
+    low)    ecolor='\033[90m'   ;;  # gray:    cheapest
+    medium) ecolor='\033[32m'   ;;  # green
+    high)   ecolor='\033[36m'   ;;  # cyan
+    xhigh)  ecolor='\033[33m'   ;;  # yellow
+    max)    ecolor='\033[1;31m' ;;  # bold red: most expensive
+    *)      ecolor='\033[0m'    ;;
+  esac
+  effort_info=$(printf " ${ecolor}(%s)\033[0m" "$effort")
 fi
 
 # --- 5-hour working block timer ---
@@ -83,5 +100,5 @@ fi
 # printf '\033[36m%s\033[0m %s%s%s\033[35m%s\033[0m' \
   # "$dir" "$git_info" "$ctx_info" "$block_info" "$model"
 # remove block info for now, not sure if I like the format/want to keep it
-printf '\033[36m%s\033[0m %s%s\033[35m%s\033[0m' \
-  "$dir" "$git_info" "$ctx_info" "$model"
+printf '\033[36m%s\033[0m %s%s\033[35m%s\033[0m%s' \
+  "$dir" "$git_info" "$ctx_info" "$model" "$effort_info"
