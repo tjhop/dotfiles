@@ -37,13 +37,22 @@ fi
 block_info=""
 BLOCK_SECONDS=$((5 * 3600))
 if [ -n "$transcript" ] && [ -e "$transcript" ]; then
-  # stat -c %Y gives modification time; use %W (birth) when available,
-  # falling back to %Y (mtime, which equals ctime on first write for new files).
-  session_start=$(stat -c '%W' "$transcript" 2>/dev/null)
-  # %W returns 0 if birth time is unsupported by the filesystem.
-  if [ -z "$session_start" ] || [ "$session_start" -eq 0 ] 2>/dev/null; then
-    session_start=$(stat -c '%Y' "$transcript" 2>/dev/null)
-  fi
+  # Birth time when the filesystem records it, else mtime. BSD stat (macOS) and
+  # GNU stat (Linux) use different flags, and GNU `stat -f` means something else
+  # entirely, so pick by OS rather than probing.
+  case "$(uname -s)" in
+    Darwin|*BSD)
+      session_start=$(stat -f '%B' "$transcript" 2>/dev/null)
+      if [ -z "$session_start" ] || [ "$session_start" -eq 0 ] 2>/dev/null; then
+        session_start=$(stat -f '%m' "$transcript" 2>/dev/null)
+      fi ;;
+    *)
+      session_start=$(stat -c '%W' "$transcript" 2>/dev/null)
+      # %W returns 0 if birth time is unsupported by the filesystem.
+      if [ -z "$session_start" ] || [ "$session_start" -eq 0 ] 2>/dev/null; then
+        session_start=$(stat -c '%Y' "$transcript" 2>/dev/null)
+      fi ;;
+  esac
   if [ -n "$session_start" ] && [ "$session_start" -gt 0 ] 2>/dev/null; then
     now=$(date +%s)
     elapsed=$(( now - session_start ))
