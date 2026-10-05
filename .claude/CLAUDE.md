@@ -81,8 +81,10 @@ Derive both, never guess or recall:
 **Every referenced item carries a short oneline summary.** Never a bare SHA, PR number, branch name, or path:
 
 - `a1b2c3d fix(processor): drop refusing-connection retry loop`
-- `#412 feat(grafana): wire alertset v1beta1` -- draft, 2 files
+- [org/repo#412](https://github.com/org/repo/pull/412) `feat(grafana): wire alertset v1beta1` -- draft, 2 files
 - `.claude/worktrees/issue-669-tempo-audit` -- branch `issue-669-tempo-audit-sweep`, 3 commits ahead of main
+
+**Every PR and issue reference is a clickable link.** Render it as a markdown link on the short name (`[org/repo#412](https://github.com/org/repo/pull/412)`) or as the URL itself; a shortlink is fine. Never a bare `#412` or `repo#412` that I have to look up by hand. Inside commit messages and PR bodies, where the forge auto-links them, the short forms are fine.
 
 This applies to subagent reports as well: any subagent that touched code reports worktree path and branch alongside its results, and I relay them.
 
