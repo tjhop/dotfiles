@@ -1,0 +1,29 @@
+{
+  "skill_name": "git-clean-history",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "commit the pending changes and squash it down to a single clean commit for review. this is on the jdoe/feat/nic-link-health branch in the observability repo",
+      "expected_output": "Runs `status` first and relays the worktree/branch context line. Commits the pending changes (a fixup! or WIP commit is fine), writes a Conventional Commits message with a body and the Assisted-by trailer to a file under $TMPDIR, runs `squash --base origin/main --message-file <file>`, relays the verification (tree identical: yes; all commits signed: yes), the one-line log, and the `git push --force-with-lease=...` command. Does not push. Does not use commit-tree, update-ref, reset --hard, or stash.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "take a pass at trimming the code comments we added on this branch -- strip the ticket numbers, they live in git history -- then commit and squash them back against the appropriate commits so the history stays clean and atomic",
+      "expected_output": "Edits the comments, then stages the changes per target commit and creates one `git commit --fixup=<sha>` per target (not a single WIP commit), runs `fold --base origin/main`, and relays the range-diff, the verification result (tree identical: yes), the resulting log with the same number of commits, and the force-with-lease push command. Does not push.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "get the branch rebased on top of current origin main and then force push to update the PR",
+      "expected_output": "Runs `status`, then `rebase --onto origin/main`. If exit code 2, lists the conflicting files, resolves them, `git add`s each, runs `git rebase --continue` until done, then `verify`. Relays the verification (commit count, whether the branch diff changed, signatures), the log, and the exact `git push --force-with-lease=...` command for the user to run. Explicitly does not run the push itself even though the user asked, and says why (push is the user's call).",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "this branch has 7 commits and it should really be 3: the CRD change, the controller change, and the docs. reorder and collapse them appropriately so I can do a final review",
+      "expected_output": "Runs `plan --base origin/main --out $TMPDIR/plan.txt`, edits the todo so related commits are grouped with `pick` + `fixup`/`fixup -C` lines (no `squash`/`reword`), shows the plan to the user before applying, runs `fold --base origin/main --plan $TMPDIR/plan.txt`, and relays the verification (tree identical: yes), the 3-commit log, and the push command. If messages need rewording, does a second pass with `--fixup=reword:` commits and a plan-less `fold`.",
+      "files": []
+    }
+  ]
+}
