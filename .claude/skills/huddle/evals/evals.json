@@ -1,0 +1,134 @@
+{
+  "skill_name": "huddle",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "/huddle",
+      "expected_output": "Mid-task, the session has three open items: an earlier assistant question about which repo an alert rule belongs in that the user replied past, an 'I'll proceed with 30-day retention' assumption, and a failing lint check that was set aside. The model gathers the evidence for all three with read-only lookups first, then lists all three, numbered and ranked (irreversible or blocking first, cosmetic last), one line each with one of the five fixed tags. It adds the one-sentence protocol note, then the decision brief for item 1 only, headed '1 of 3', in the template's sections, and ends the turn with that single question. It does not brief items 2 and 3, does not answer any item itself, and makes no writes other than recording the inventory on the tracking surface.",
+      "files": [],
+      "expectations": [
+        "The reply contains a numbered inventory of exactly the three open items, one line each",
+        "The inventory is ranked with irreversible or blocking items before cosmetic ones, and each line carries one of [irreversible], [blocking], [assumption], [follow-up], [cosmetic]",
+        "The reply contains one sentence saying answers are recorded as they come and authorized work runs after the last question unless the user says now",
+        "Only item 1 gets a decision brief in this turn, and its heading shows its place as 1 of 3",
+        "The brief has What, Why it matters now, Context and evidence with sources, two to four Options with trade-offs, a Recommendation with a numeric confidence, Reversibility and blast radius, and a Question",
+        "The reply ends with exactly one question and nothing after it",
+        "The model does not resolve any item by assuming an answer",
+        "No ticket, PR, or chat write and no git push happens; the only write is the inventory going to the tracking surface"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "/huddle 2",
+      "expected_output": "The model's previous turn listed four numbered options for handling a scale-down eviction problem. The model takes option 2 from that list, says in one line which list it took the number from if more than one recent list could match, and writes one decision brief for it under 250 words. There is no inventory and no walkthrough; the turn ends with the brief's single question.",
+      "files": [],
+      "expectations": [
+        "The brief is about item 2 of the most recent numbered list in the session",
+        "No inventory of other open items is shown",
+        "The brief follows the template sections in order",
+        "The brief is under about 250 words",
+        "Every ticket or PR mentioned is a link carrying its title, and every PR its repo",
+        "The reply ends with a single question naming the concrete choices"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "/huddle the retention change",
+      "expected_output": "The model matches the topic to the open retention decision in the session, runs read-only lookups if they firm up evidence (reading the config file, gh pr view on the related PR, the tracker's issue lookup on the ticket), and writes one decision brief citing those sources with file:line, repo and PR title, and ticket id with title. Option names are plain words with any internal code in parentheses after them. No writes happen and the turn ends with the brief's single question.",
+      "files": [],
+      "expectations": [
+        "The brief is about the retention change and no other item",
+        "Evidence lines cite sources such as file:line, repo#PR with title, or ticket id with title",
+        "No ticket id or PR number appears without its title and link, including in option lines and the question line",
+        "Option names are plain words; internal codes or spec labels appear only in parentheses after the words",
+        "Any tool calls made are read-only (file reads, git log, gh pr view, the tracker's issue lookup); no ticket update or comment, no gh pr comment, no git push",
+        "The recommendation states a confidence such as 7/10 and the thing that would change it",
+        "The reply ends with a single question"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "ok hang on, walk me through what's open one at a time",
+      "expected_output": "No slash, but this is a walkthrough. The model shows the numbered inventory and the brief for item 1, then stops. When the user answers 'go with B, cut the PR', the model echoes '1. decided: ...; queued' in one line, does not cut the PR yet, and moves straight to item 2's brief in the same turn with no tool calls other than writing the decision to the tracking surface. When the user says 'skip' on item 2 it is recorded as deferred. After the last answer the model prints the decision log with one line per item marked decided, deferred, or dropped, using the same numbers as the inventory, then a 'Queue' with the PR, then does the queued work and reports it in one line per item.",
+      "files": [],
+      "expectations": [
+        "The skill triggers without a slash command",
+        "The first reply contains the numbered inventory and exactly one brief, for item 1, ending with one question",
+        "After an answer, the decision is echoed in one line before the next brief, and the next brief comes in the same turn",
+        "Work the answer authorizes ('cut the PR') is queued and not performed until after the decision log; between answers the only write is to the tracking surface",
+        "'skip' or 'later' records the item as deferred",
+        "Item numbers do not change during the walkthrough",
+        "The reply to the last answer contains that answer's echo and the decision log, one line per item, each marked decided, deferred, or dropped, followed by the queue of authorized work",
+        "The queued work runs only after the log, with one line per item as it completes"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "I need more details before deciding",
+      "expected_output": "No slash and no topic. If exactly one decision is pending in the session (for example the model just asked whether to pin replicas or wait for an autoscaler fix), the model writes one decision brief for it and ends with its question. If several are pending, it falls back to the walkthrough: numbered inventory plus the brief for item 1. In either case it does not pick an option on the user's behalf.",
+      "files": [],
+      "expectations": [
+        "The skill triggers without a slash command or a named topic",
+        "With one pending decision, the reply is a single brief with no inventory",
+        "With several pending decisions, the reply is a numbered inventory plus the brief for item 1 only",
+        "The brief separates evidence (with sources) from the recommendation",
+        "The model does not act on any option before the user answers",
+        "The reply ends with exactly one question"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "/huddle",
+      "expected_output": "The session has eight open items, and four of them are the same decision: four closed tickets each with one open child PR, each asking reopen, leave closed, or skip. The model groups those four into one inventory item with the sub-count '(4)', so the inventory shows five numbered items. When that group comes up, its brief has one What and Why, an 'Items:' list numbered 1 to 4 with one evidence line each (ticket link with title, PR link with title), one shared option set A/B/C, a per-item recommendation, and a single question that says 'A, B, or C for each?' and invites 'B for all' or 'A for 1 and 3, B for 2'. When the user answers 'A for 1 and 3, B for the rest', the model records the outcome per sub-item in one or two lines and moves to the next item. When a user answers only 'A for 1', the model asks for 2 to 4 in one line without reprinting the brief.",
+      "files": [],
+      "expectations": [
+        "Items that take the same option set are presented as one grouped inventory item with a sub-count, not as four separate items",
+        "The grouped brief has numbered sub-items with one evidence line each and one shared set of lettered options",
+        "The grouped brief asks exactly one question that explicitly accepts 'X for all' and per-item answers",
+        "An answer like 'A for 1 and 3, B for the rest' is recorded per sub-item with the right letter against each",
+        "A partial answer leaves the unanswered sub-items open and the model asks for just those in one line",
+        "No group has more than five sub-items; a longer run is split"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "<task-notification>Background command finished: the gate run passed</task-notification>",
+      "expected_output": "A walkthrough is in progress and item 6's question is pending. A background task notification arrives. The model handles it in one or two lines (what finished, whether it changes item 6's facts) and ends with the pending question in short form, such as 'Still on 6: A, B, or C?'. It does not reprint item 6's brief and does not start new work. If a second notification arrives with still no answer, the model says once that the huddle is paused at 6 of 9 and does not restate the full question again.",
+      "files": [],
+      "expectations": [
+        "The notification is handled in at most two lines",
+        "The full brief for the pending item is not reprinted",
+        "The turn ends with the pending question in a one-line short form",
+        "No new work is started in the notification turn",
+        "After repeated notifications with no answer, the model says once that the huddle is paused at N of M rather than re-asking in full each time"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "sorry, let's try again -- what's waiting on me?",
+      "expected_output": "A walkthrough started earlier in the session reached item 4 of 9, then a context compaction and several hours of background work happened. The model reads the tracking surface rather than trusting the compaction summary, shows the compact list of all nine items with each one's status (decided with its outcome, deferred, dropped, or open), keeps the original numbers, re-checks the 'why it matters now' facts of the open items, and continues with item 4's brief and question. It does not start a fresh inventory.",
+      "files": [],
+      "expectations": [
+        "The skill triggers on 'what's waiting on me' without a slash",
+        "The reply shows every item from the earlier inventory with its current status and the original numbering",
+        "Items already decided are not re-briefed or re-asked",
+        "The reply continues with the first open item's brief and ends with its single question",
+        "No fresh inventory is started while the earlier walkthrough is unfinished",
+        "The statuses come from the tracking surface, not from the compaction summary alone"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "!bash ~/tmp/reword.sh",
+      "expected_output": "Item 4's question is pending and the user's next input is a shell command they ran themselves, not an answer. The model treats the command output as a notification: it reports the result in a line, keeps item 4 open, and ends with item 4's question in short form. Item 4 is never logged as decided until the user actually chooses. Later, when the user raises a side question mid-item ('is PR 2644 related to this?'), the model answers it briefly, adds it as a new numbered item at the end of the inventory rather than leaving an 'if you want it, say so' offer, and returns to the pending question.",
+      "files": [],
+      "expectations": [
+        "A shell command or other non-answer input does not decide the pending item",
+        "The pending item is not logged as decided without an explicit answer",
+        "The turn ends with the pending question in short form",
+        "A side question raised mid-item becomes a new numbered inventory item appended at the end",
+        "The model does not leave open offers or stacked questions under the pending question"
+      ]
+    }
+  ]
+}
